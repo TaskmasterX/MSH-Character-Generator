@@ -1,7 +1,7 @@
 import os
 import sys
-import random
 
+from random import randint
 from functools import partial
 from bisect import bisect
 
@@ -60,7 +60,6 @@ class MainWindow(QMainWindow):
         self.age_textbox = QLineEdit(self)
         self.age_textbox.setFixedSize(80,30)
 
-        #self.spacer_label = QLabel("", self)
         self.public_radio = QRadioButton("Public", self)
         self.secret_radio = QRadioButton("Secret", self)
 
@@ -161,7 +160,6 @@ class MainWindow(QMainWindow):
         group_layout.addWidget(self.group_textbox)
         group_layout.addWidget(self.base_label)
         group_layout.addWidget(self.base_textbox)
-        #radiobuttons_layout.addWidget(self.spacer_label)
         radiobuttons_layout.addWidget(self.public_radio)
         radiobuttons_layout.addWidget(self.secret_radio)
         radiobuttons_layout.setAlignment(Qt.AlignHCenter)
@@ -882,7 +880,7 @@ class MainWindow(QMainWindow):
 
 
     def physical_form_roll(self):
-        roll = random.randint(1, 100)
+        roll = randint(1, 100)
         #map roll ranged to indices in the physical form list
         #roll_ranges = [(roll, index),...]
         roll_ranges = [
@@ -964,7 +962,7 @@ class MainWindow(QMainWindow):
 
 
         #origin of power
-        originRoll = random.randint(1,100)
+        originRoll = randint(1,100)
         if originRoll < 11:
             self.origin_textbox.setText("Natal")
         elif originRoll < 21:
@@ -1134,32 +1132,32 @@ class MainWindow(QMainWindow):
         }
 
         # Apply bonuses
-        if index in bonus1 and random.randint(1, 100) <= chance:
+        if index in bonus1 and randint(1, 100) <= chance:
             bonus = bonus1[index]
             self.bonuses_textbox.insertPlainText(bonus["text"])
             for attr, value in bonus["effects"].items():
                 setattr(self, attr, getattr(self, attr) + value)
 
-        if index in bonus2 and random.randint(1, 100) <= chance:
+        if index in bonus2 and randint(1, 100) <= chance:
             bonus = bonus2[index]
             self.bonuses_textbox.insertPlainText(bonus["text"])
             for attr, value in bonus["effects"].items():
                 setattr(self, attr, getattr(self, attr) + value)
 
         # Apply penalties
-        if index in penalty1 and random.randint(1, 100) <= chance:
+        if index in penalty1 and randint(1, 100) <= chance:
             penalty = penalty1[index]
             self.penalties_textbox.insertPlainText(penalty["text"])
             for attr, value in penalty["effects"].items():
                 setattr(self, attr, getattr(self, attr) + value)
 
         # Add notes
-        if index in notes1 and random.randint(1, 100) <= chance:
+        if index in notes1 and randint(1, 100) <= chance:
             print(f"notes1, index:{index}")
             note = notes1[index]
             print(f"notes1, note:{note}")
             if index == 18:
-                venomous = random.randint(0,1)
+                venomous = randint(0,1)
                 if venomous:
                     self.notes_textbox.insertPlainText(note["text"])
             else:
@@ -1169,22 +1167,22 @@ class MainWindow(QMainWindow):
                 self.contacts_listbox.addItem(note["effects"]["contact"])
                 contact_item = self.contacts_listbox.item(self.contacts_listbox.count() - 1)
                 contact_item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
-        if index in notes2 and random.randint(1, 100) <= chance:
+        if index in notes2 and randint(1, 100) <= chance:
             note = notes2[index]
             self.notes_textbox.insertPlainText(note["text"])
             if self.initial_contacts > 0:
                 self.contacts_listbox.addItem(note["effects"]["contact"])
                 contact_item = self.contacts_listbox.item(self.contacts_listbox.count() - 1)
                 contact_item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
-        if index in notes3 and random.randint(1, 100) <= chance:
+        if index in notes3 and randint(1, 100) <= chance:
             note = notes3[index]
             self.notes_textbox.insertPlainText(note["text"])
-        if index in weakness1 and random.randint(1, 100) <= chance:
+        if index in weakness1 and randint(1, 100) <= chance:
             weakness = weakness1[index]
             self.weakness_textbox.insertPlainText(weakness["text"])
 
 
-        bonus3_chance = random.randint(1,100)
+        bonus3_chance = randint(1,100)
         print(f"Physical Form Info bonus3= {bonus3_chance}")
         if bonus3_chance <= chance:
             #Bonuses Pt3
@@ -1192,7 +1190,7 @@ class MainWindow(QMainWindow):
                 self.bonuses_textbox.insertPlainText("+2CS Popularity with the public; ")
 
 
-        penalty2_chance = random.randint(1,100)
+        penalty2_chance = randint(1,100)
         print(f"Physical Form Info penalty2= {penalty2_chance}")
         if penalty2_chance <= chance:
             #Penalties Pt2
@@ -1201,7 +1199,7 @@ class MainWindow(QMainWindow):
                 self.pf_popularity_rank = 0
 
 
-        weakness2_chance = random.randint(1,100)
+        weakness2_chance = randint(1,100)
         print(f"Physical Form Info weakness2= {weakness2_chance}")
         if weakness2_chance <= chance:
             #Weaknesses Pt2
@@ -1308,7 +1306,7 @@ class MainWindow(QMainWindow):
 
     #determine the number of compound/changeling forms
     def number_of_compoundforms(self):
-        roll = random.randint(1,100)
+        roll = randint(1,100)
         if roll < 51:
             return 2
         elif roll < 76:
@@ -1363,7 +1361,7 @@ class MainWindow(QMainWindow):
                 compound_table = self.physicalforms["Compound"]
                 print(f"compound_table = {compound_table}")
                 compound_num = self.compound_list.count()
-                compound_option_chance = random.randint(1,100)
+                compound_option_chance = randint(1,100)
                 print(f"options_list_selected compound_option_chance= {compound_option_chance}")
                 if compound_table == 0:#if no compound form table has been chosen
                     if option == 16 and index == 0:
@@ -1420,18 +1418,18 @@ class MainWindow(QMainWindow):
                 print(f"+1 area movement")
         elif row == 16: #Demihuman-Avian
             if index == 0:
-                compound_option_chance1 = random.randint(1,100)
+                compound_option_chance1 = randint(1,100)
                 print(f"options_list_selected compound_option_chance1= {compound_option_chance1}")
                 if compound_option_chance1 <= chance:
                     self.bonuses_textbox.insertPlainText("Popularity +1CS; ")
                     self.popularity_bonus += 1
             if index == 1:
-                compound_option_chance2 = random.randint(1,100)
+                compound_option_chance2 = randint(1,100)
                 print(f"options_list_selected compound_option_chance2= {compound_option_chance2}")
                 if compound_option_chance2 <= chance:
                     self.bonuses_textbox.insertPlainText("+1CS Fighting; ")
                     self.fighting_bonus += 1
-                compound_option_chance3 = random.randint(1,100)
+                compound_option_chance3 = randint(1,100)
                 print(f"options_list_selected compound_option_chance3= {compound_option_chance3}")
                 if compound_option_chance3 <= chance:
                     self.notes_textbox.insertPlainText("Harpies possess arms that "
@@ -1455,23 +1453,23 @@ class MainWindow(QMainWindow):
             #self.notes_textbox.insertPlainText(f"Robot-Metamorphic: {index+2} forms; ")
         elif row == 29: #Angel/Demon
             if index == 0:
-                compound_option_chance4 = random.randint(1,100)
+                compound_option_chance4 = randint(1,100)
                 print(f"options_list_selected compound_option_chance4= {compound_option_chance4}")
                 if compound_option_chance4 <= chance:
                     self.bonuses_textbox.insertPlainText("Popularity +2CS; ")
                     self.popularity_bonus += 2
-                compound_option_chance4b = random.randint(1,100)
+                compound_option_chance4b = randint(1,100)
                 print(f"options_list_selected compound_option_chance4b= {compound_option_chance4b}")
                 if compound_option_chance4b <= chance:
                     self.notes_textbox.insertPlainText("Angels automatically possess a specific "
                     "form of Artifact Creation that produces a magical sword that does Excellent damage.; ")
             if index == 1:
-                compound_option_chance5 = random.randint(1,100)
+                compound_option_chance5 = randint(1,100)
                 print(f"options_list_selected compound_option_chance5= {compound_option_chance5}")
                 if compound_option_chance5 <= chance:
                     self.penalties_textbox.insertPlainText("Popularity -2CS; ")
                     self.popularity_bonus -= 2
-                compound_option_chance5b = random.randint(1,100)
+                compound_option_chance5b = randint(1,100)
                 print(f"options_list_selected compound_option_chance5= {compound_option_chance5b}")
                 if compound_option_chance5b <= chance:
                     self.notes_textbox.insertPlainText("Demons automatically possess "
@@ -1556,7 +1554,7 @@ class MainWindow(QMainWindow):
         #calculate which table to use
         #Demihuman Avian and Animal tables are determined by the optional list
         if selected_text != "Demihuman-Avian" and selected_text != "Animal":
-            table_chance = random.randint(1,100)
+            table_chance = randint(1,100)
             count = self.compound_list.count()
             compound_table = self.physicalforms["Compound"]
             table = self.physicalforms[selected_text]
@@ -1788,7 +1786,7 @@ class MainWindow(QMainWindow):
 
         if self.animal_detection == 1:
             #roll the two detection powers and apply power rank Good
-                roll = random.randint(1,100)
+                roll = randint(1,100)
                 powers = list(powerlists.detection_powers_list.keys())
                 roll_thresholds = [3, 5, 11, 15, 21, 29, 35, 41, 43, 45, 51, 55, 57,
                                     59, 60, 63, 70, 80, 91, 95, 99, 101]
@@ -1800,10 +1798,10 @@ class MainWindow(QMainWindow):
                 item = self.powers_listbox.item(0)
                 item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
                 # 2nd detection power
-                roll = random.randint(1,100)
+                roll = randint(1,100)
                 index2 = bisect(roll_thresholds, roll)
                 while index2 == index:#if the same power is rolled, roll again
-                    roll = random.randint(1,100)
+                    roll = randint(1,100)
                     index2 = bisect(roll_thresholds, roll)
                 power = powers[index2]
                 score = self.min_std_rank_score(rank)
@@ -1814,14 +1812,14 @@ class MainWindow(QMainWindow):
         item = self.physical_form_list.currentItem()
         selected_text = item.text()
         if self.energy_form == 1:
-            roll = random.randint(1,100)
+            roll = randint(1,100)
             powers = list(powerlists.energy_emission_powers_list.keys())
             roll_thresholds = [11, 21, 23, 35, 38, 43, 53, 63, 73, 76, 79, 84, 
                             94, 101]
             index = bisect(roll_thresholds, roll)
             power = powers[index]
             table = self.physicalforms[selected_text]
-            roll = random.randint(1,100)
+            roll = randint(1,100)
             rank_index = self.ability_roll(table, roll)
             rank = self.ranks[rank_index]
             score = self.min_std_rank_score(rank)
@@ -1831,14 +1829,14 @@ class MainWindow(QMainWindow):
             item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
 
         if self.deity_travel_power == 1:
-            roll = random.randint(1,100)
+            roll = randint(1,100)
             powers = list(powerlists.travel_powers_list.keys())
             roll_thresholds = [3, 7, 11, 13, 15, 20, 27, 29, 35, 43, 47, 52, 57,
                             59, 65, 73, 77, 79, 81, 83, 94, 98, 99, 101]
             index = bisect(roll_thresholds, roll)
             power = powers[index]
             table = self.physicalforms[selected_text]
-            roll = random.randint(1,100)
+            roll = randint(1,100)
             rank_index = self.ability_roll(table, roll)
             rank = self.ranks[rank_index]
             score = self.min_std_rank_score(rank)
@@ -1849,7 +1847,7 @@ class MainWindow(QMainWindow):
         
         if self.wings_travel_power == 1:
             table = self.physicalforms[selected_text]
-            roll = random.randint(1,100)
+            roll = randint(1,100)
             rank_index = self.ability_roll(table, roll)
             rank = self.ranks[rank_index]
             score = self.min_std_rank_score(rank)
@@ -2015,7 +2013,7 @@ class MainWindow(QMainWindow):
 
         #roll and determine power from power class
         print("Rolling Power!")
-        roll = random.randint(1,100)
+        roll = randint(1,100)
         item = self.power_classes_listbox.currentItem()
         power_class = item.text()
         print(f"power_class={power_class}, roll={roll}")
@@ -2232,7 +2230,7 @@ class MainWindow(QMainWindow):
 
             else:#roll the power ranks and add them to the Powers List and update the min/max
                 #roll the rank for the main power and display it in the Powers list
-                roll = random.randint(1,100)
+                roll = randint(1,100)
                 item = self.physical_form_list.currentItem()
                 selected_text = item.text()
                 table = self.physicalforms[selected_text]
@@ -2279,7 +2277,7 @@ class MainWindow(QMainWindow):
 
                 #roll the power ranks for the bonus powers
                 for bonus_power in bonus_powers_selected:
-                    roll = random.randint(1,100)
+                    roll = randint(1,100)
                     rank_index = self.ability_roll(table, roll)
                     rank = self.ranks[rank_index]
                     score = self.min_std_rank_score(rank)
@@ -2294,7 +2292,7 @@ class MainWindow(QMainWindow):
                 self.bonus_powers_listbox.clear()
                 #roll the power ranks fore the optional powers
                 for option_power in option_powers_selected:
-                    roll = random.randint(1,100)
+                    roll = randint(1,100)
                     rank_index = self.ability_roll(table, roll)
                     rank = self.ranks[rank_index]
                     score = self.min_std_rank_score(rank)
@@ -2388,7 +2386,7 @@ class MainWindow(QMainWindow):
     #Click the Generate Weakness button
     def generate_weakness(self):
         #Roll Stimulus
-        s_roll = random.randint(1, 100)
+        s_roll = randint(1, 100)
         if s_roll < 14:
             stimulus = "Elemental Allergy"
         elif s_roll < 19:
@@ -2405,7 +2403,7 @@ class MainWindow(QMainWindow):
             stimulus = "Psychological"
         
         #Roll Effect
-        e_roll = random.randint(1, 100)
+        e_roll = randint(1, 100)
         if e_roll < 51:
             effect = "Power Negation"
         elif e_roll < 91:
@@ -2416,7 +2414,7 @@ class MainWindow(QMainWindow):
             effect = "Incapacitation"
 
         #Roll Duration
-        d_roll = random.randint(1, 100)
+        d_roll = randint(1, 100)
         if d_roll < 41:
             duration = "Continuous with Contact"
         elif d_roll < 61:
@@ -2590,7 +2588,7 @@ class MainWindow(QMainWindow):
         #roll and determine talent from talent class
         print("Rolling Talent!")
         print(f"resource_rank={self.resources_rank}")
-        roll = random.randint(1,10)
+        roll = randint(1,10)
         item = self.talent_classes_listbox.currentItem()
         talent_class = item.text()
         self.select_talent_listbox.clear()
@@ -3311,7 +3309,7 @@ class MainWindow(QMainWindow):
         for ability, inputs in abilities:
             print(f"ability={ability}, inputs={inputs}")
             #randomly roll for each ability on the given table
-            roll = random.randint(1,100)
+            roll = randint(1,100)
             rankindex = self.ability_roll(table,roll)
             inputs["roll"].setText(str(roll))
             inputs["rank_roll"].setText(f"{self.ranks[rankindex]}")
@@ -3379,7 +3377,7 @@ class MainWindow(QMainWindow):
 
 
     def roll_number_powers(self, type):
-        roll = random.randint(1,100)
+        roll = randint(1,100)
         print(f"roll_number_powers roll={roll}, type={type}")
         # Define ranges and corresponding values for each type
         ranges = [
@@ -3427,7 +3425,7 @@ class MainWindow(QMainWindow):
                 
 
     def roll_power_class(self):
-        roll = random.randint(1,100)
+        roll = randint(1,100)
         print(f"Roll Power Classes roll={roll}")
         if roll < 6:
              power_class = "Defensive"
@@ -3466,7 +3464,7 @@ class MainWindow(QMainWindow):
 
 
     def energy_emission_body_part(self):
-        roll = random.randint(1,100)
+        roll = randint(1,100)
         if roll < 15:
             epoint = "Entire body"
         elif roll < 23:
@@ -3500,7 +3498,7 @@ class MainWindow(QMainWindow):
 
 
     def roll_talent_class(self):
-        roll = random.randint(1,100)
+        roll = randint(1,100)
         print(f"Roll Talent Classes roll={roll}")
         if roll < 21:
             self.talent_classes_listbox.addItem("Weapon Skills")
@@ -3548,7 +3546,7 @@ class MainWindow(QMainWindow):
 
 
     def biophysical_random_option(self):
-        roll = random.randint(1,100)
+        roll = randint(1,100)
         if roll < 25:
             text = 'Healing'
         elif roll < 45:
@@ -3748,7 +3746,7 @@ class BiophysicalOptionDialog(QDialog):
 #show splashscreen
 def show_splash():
     app = QApplication(sys.argv)
-    
+
     # Load splash image
     pixmap = QPixmap(resource_path('images/UPB_sm.jpg'))
     
