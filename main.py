@@ -2788,6 +2788,8 @@ class MainWindow(QMainWindow):
         self.contacts_classes_listbox.clear()
         self.select_contact_listbox.clear()
         self.roll_talent_classes_button.setEnabled(False)
+        self.buy_talent_button.setEnabled(False)
+        self.remove_talent_button.setEnabled(False)
         self.talents_listbox.setEnabled(False)
         self.talent2_pixmap = QPixmap("")
         self.talent2_image.setPixmap(self.talent2_pixmap)
