@@ -1,9 +1,11 @@
 v2.1 changes from 2.0:
 	-Add Antennae and Horns to the Physical Form Options for Modified Human-Extra Parts; Antenna give a detection power and horns +1CS to Charging attacks
 	-Check if body part exists (wings, antenna, horns and tails) for emission points of Energy Emission powers and use an alternate (hands, eyes, torso) emission point if not
-	-Fixed selecting the use Standard Rank Scores option crashes the app if Abilities have not been rolled yet.
+	-Fixed issue selecting the use Standard Rank Scores option that crashes the app if Abilities have not been rolled yet.
 	-Fixed Animal Physical Forms not adding two Good ranked Detection powers
 	-Fixed Physical Form contacts not showing in Contact list
-	-Updated saving to file so Compound Physical Form notes will not be exported when saving the file
+	-Updated saving to file so Compound Physical Form notes will not be exported when saving the file as they are no longer needed at that point in character creation
 	-Fixed spelling errors when saving file
 	-Updated Instructions
+	-Decreased size of some images to reduce size
+	-Integrated GitHub Actions to create cross-platform builds for Windows, Mac and Linux

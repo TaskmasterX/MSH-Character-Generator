@@ -39,6 +39,7 @@ class MainWindow(QMainWindow):
         self.std_rank_scores_action = QAction("&Use Standard Rank Scores", self, 
                                          checkable=True)
         options_menu.addAction(self.std_rank_scores_action)
+        self.std_rank_scores_action.setDisabled(True)
         self.std_rank_scores_action.triggered.connect(self.toggle_std_rank)
         self.instruction_action.triggered.connect(self.show_instructions)
         self.about_action.triggered.connect(self.show_about)
@@ -348,6 +349,7 @@ class MainWindow(QMainWindow):
     def setup_abilities_tab(self):
         abilities = ["fighting","agility","strength","endurance",
                      "reason","intuition","psyche",""]
+        self.abilities_button_rolled = False
         
         #create layouts of the tab
         abilities_tab_layout = QHBoxLayout()
@@ -909,6 +911,8 @@ class MainWindow(QMainWindow):
         self.options_list.setEnabled(True)
         self.compound_list.setEnabled(True)
         self.physicalforms["Compound"] = 0
+        self.abilities_button_rolled = False
+        self.std_rank_scores_action.setDisabled(False)
         #clear bonus attributes
         self.clear_info()
         #clear attribute tab boxes; disable bonus buttons
@@ -1162,6 +1166,9 @@ class MainWindow(QMainWindow):
                     self.notes_textbox.insertPlainText(note["text"])
             else:
                 self.notes_textbox.insertPlainText(note["text"])
+            # Handle initial contacts - if any initial contacts values are present from physical form then add them to the contact list
+            if "initial_contacts" in notes1[index]["effects"]:
+                self.initial_contacts = notes1[index]["effects"]["initial_contacts"]
             if self.initial_contacts > 0:
                 note = notes1[index]
                 self.contacts_listbox.addItem(note["effects"]["contact"])
@@ -1170,6 +1177,9 @@ class MainWindow(QMainWindow):
         if index in notes2 and randint(1, 100) <= chance:
             note = notes2[index]
             self.notes_textbox.insertPlainText(note["text"])
+            # Handle initial contacts - if any initial contacts values are present from physical form then add them to the contact list
+            if "initial_contacts" in notes2[index]["effects"]:
+                self.initial_contacts = notes2[index]["effects"]["initial_contacts"]
             if self.initial_contacts > 0:
                 self.contacts_listbox.addItem(note["effects"]["contact"])
                 contact_item = self.contacts_listbox.item(self.contacts_listbox.count() - 1)
@@ -1218,6 +1228,8 @@ class MainWindow(QMainWindow):
             self.options_list.addItem("Tails give the hero +1 attack")
             self.options_list.addItem("Wings give the hero Flight")
             self.options_list.addItem("Extra legs give +1 area movement")
+            self.options_list.addItem("Antennae give a Detection Power")
+            self.options_list.addItem("Horns give +1CS to Charging attacks")
             self.watcher_pixmap = QPixmap(resource_path('images/watcher_options.jpg'))
             self.watcher_image.setPixmap(self.watcher_pixmap)
         elif index == 16: # Demihuman-Avian
@@ -1416,6 +1428,11 @@ class MainWindow(QMainWindow):
                 self.wings_travel_power = 1
             if index == 4:
                 print(f"+1 area movement")
+            if index == 5:
+                print(f"gain detection power")
+                self.detection_power = 1
+            if index == 6:
+                print(f"+1CS to Charging attacks")
         elif row == 16: #Demihuman-Avian
             if index == 0:
                 compound_option_chance1 = randint(1,100)
@@ -1475,6 +1492,7 @@ class MainWindow(QMainWindow):
                     self.notes_textbox.insertPlainText("Demons automatically possess "
                     "Good Fire Generation and Specific Invulnerability to Heat and Fire; ")
         elif row == 31: #Animal
+            self.animal_detection = 1
             if index == 0 :
                 print(f"Terrestrial Animals roll on Table 1")
                 table = self.physicalforms['Animal']["Terrestrial"]
@@ -1624,6 +1642,7 @@ class MainWindow(QMainWindow):
         #reset health and karma
         self.health = 0
         self.karma = 0
+        self.abilities_button_rolled = True
         #if physical form receives an ability bonus make sure to add one back if
         #one was used before re-rolling abilities
         if self.ability_bonus_button_was_clicked > 0:
@@ -1786,28 +1805,28 @@ class MainWindow(QMainWindow):
 
         if self.animal_detection == 1:
             #roll the two detection powers and apply power rank Good
-                roll = randint(1,100)
-                powers = list(powerlists.detection_powers_list.keys())
-                roll_thresholds = [3, 5, 11, 15, 21, 29, 35, 41, 43, 45, 51, 55, 57,
-                                    59, 60, 63, 70, 80, 91, 95, 99, 101]
-                index = bisect(roll_thresholds, roll)
-                power = powers[index]
-                rank = self.ranks[4]
-                score = self.min_std_rank_score(rank)
-                self.powers_listbox.addItem(f"{power} - {rank} ({score})")
-                item = self.powers_listbox.item(0)
-                item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
-                # 2nd detection power
+            roll = randint(1,100)
+            powers = list(powerlists.detection_powers_list.keys())
+            roll_thresholds = [3, 5, 11, 15, 21, 29, 35, 41, 43, 45, 51, 55, 57,
+                                59, 60, 63, 70, 80, 91, 95, 99, 101]
+            index = bisect(roll_thresholds, roll)
+            power = powers[index]
+            rank = self.ranks[4]
+            score = self.min_std_rank_score(rank)
+            self.powers_listbox.addItem(f"{power} - {rank} ({score})")
+            item = self.powers_listbox.item(0)
+            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+            # 2nd detection power
+            roll = randint(1,100)
+            index2 = bisect(roll_thresholds, roll)
+            while index2 == index:#if the same power is rolled, roll again
                 roll = randint(1,100)
                 index2 = bisect(roll_thresholds, roll)
-                while index2 == index:#if the same power is rolled, roll again
-                    roll = randint(1,100)
-                    index2 = bisect(roll_thresholds, roll)
-                power = powers[index2]
-                score = self.min_std_rank_score(rank)
-                self.powers_listbox.addItem(f"{power} - {rank} ({score})")
-                item = self.powers_listbox.item(1)
-                item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+            power = powers[index2]
+            score = self.min_std_rank_score(rank)
+            self.powers_listbox.addItem(f"{power} - {rank} ({score})")
+            item = self.powers_listbox.item(1)
+            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
         
         item = self.physical_form_list.currentItem()
         selected_text = item.text()
@@ -1840,7 +1859,7 @@ class MainWindow(QMainWindow):
             rank_index = self.ability_roll(table, roll)
             rank = self.ranks[rank_index]
             score = self.min_std_rank_score(rank)
-            epoint = self.energy_emission_body_part()
+            #epoint = self.energy_emission_body_part()
             self.powers_listbox.addItem(f"{power} - {rank} ({score})")
             item = self.powers_listbox.item(0)
             item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
@@ -1851,8 +1870,25 @@ class MainWindow(QMainWindow):
             rank_index = self.ability_roll(table, roll)
             rank = self.ranks[rank_index]
             score = self.min_std_rank_score(rank)
-            epoint = self.energy_emission_body_part()
+            #epoint = self.energy_emission_body_part()
             self.powers_listbox.addItem(f"Winged Flight - {rank} ({score})")
+            item = self.powers_listbox.item(0)
+            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+
+        if self.detection_power == 1:
+            roll = randint(1,100)
+            powers = list(powerlists.detection_powers_list.keys())
+            roll_thresholds = [3, 5, 11, 15, 21, 29, 35, 41, 43, 45, 51, 55, 57,
+                                59, 60, 63, 70, 80, 91, 95, 99, 101]
+            index = bisect(roll_thresholds, roll)
+            power = powers[index]
+            table = self.physicalforms[selected_text]
+            roll = randint(1,100)
+            rank_index = self.ability_roll(table, roll)
+            rank = self.ranks[rank_index]
+            score = self.min_std_rank_score(rank)
+            #epoint = self.energy_emission_body_part()
+            self.powers_listbox.addItem(f"Antennae: {power} - {rank} ({score})")
             item = self.powers_listbox.item(0)
             item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
 
@@ -2259,7 +2295,7 @@ class MainWindow(QMainWindow):
 
                 rank = self.ranks[rank_index]
                 score = self.min_std_rank_score(rank)
-                print(f"roll={roll}, rank={rank}\{rank_index}, score={score}")
+                print(f"roll={roll}, rank={rank}\\{rank_index}, score={score}")
                 if power != '':
                     if power_class == "Energy Emission":
                         epoint = self.energy_emission_body_part()
@@ -2282,7 +2318,7 @@ class MainWindow(QMainWindow):
                     rank = self.ranks[rank_index]
                     score = self.min_std_rank_score(rank)
                     bonus_power_name = bonus_power.text()
-                    print(f"roll={roll}, rank={rank}\{rank_index}, score={score}")
+                    print(f"roll={roll}, rank={rank}\\{rank_index}, score={score}")
                     #if energy emission power check for emission point
                     if bonus_power_name in powerlists.energy_emission_powers_list.keys():
                         epoint = self.energy_emission_body_part()
@@ -2297,7 +2333,7 @@ class MainWindow(QMainWindow):
                     rank = self.ranks[rank_index]
                     score = self.min_std_rank_score(rank)
                     option_power_name = option_power.text()
-                    print(f"roll={roll}, rank={rank}\{rank_index}, score={score}")
+                    print(f"roll={roll}, rank={rank}\\{rank_index}, score={score}")
                     #if the optional power is a power class add it to the Power Class list and not the Powers list
                     if option_power_name != "Energy Emission" and option_power_name != "Energy Control" and option_power_name != "Magical Power":
                         #if energy emission power check for emission point
@@ -3056,8 +3092,14 @@ class MainWindow(QMainWindow):
                     file.write(f"PHYSICAL FORM: {physical_form_name}\nORIGIN OF POWER: {self.origin_textbox.text()}\n")
                     file.write(f"Bonuses: {self.bonuses_textbox.toPlainText()}\n")
                     file.write(f"Penalties: {self.penalties_textbox.toPlainText()}\n")
-                    file.write(f"Weakneses: {self.weakness_textbox.toPlainText()}\n")
-                    file.write(f"Notes: {self.notes_textbox.toPlainText()}\n\n\n")
+                    file.write(f"Weaknesses: {self.weakness_textbox.toPlainText()}\n")
+                    #exclude the Compound Form notes if they exist
+                    exclude_text = "Click each Compound form to determine which Table to use to roll Abilities and which Bonuses, Penalties, etc. are part of the Compound Form;"
+                    notes = self.notes_textbox.toPlainText()
+                    if notes.startswith(exclude_text):
+                        notes = notes[len(exclude_text):].lstrip()
+                    file.write(f"Notes: {notes}\n\n\n")
+                    #file.write(f"Notes: {self.notes_textbox.toPlainText()}\n\n\n")
                     file.write(f"ATTRIBUTES:\n")
                     for ability in self.ability_inputs:
                         rank_textbox = self.ability_inputs[ability]["rank"]
@@ -3237,6 +3279,7 @@ class MainWindow(QMainWindow):
         self.energy_form = 0
         self.deity_travel_power = 0
         self.wings_travel_power = 0
+        self.detection_power = 0
 
 
 
@@ -3249,15 +3292,16 @@ class MainWindow(QMainWindow):
 
         if checked:#using standard rank scores
             self.std_rank_scores = 1
-            self.update_rank_scores(1)
 
         else:#using minimun rank scores
             self.std_rank_scores = 0
-            self.update_rank_scores(0)
 
-        self.health = self.health * self.health_multiplier
-        self.health_textbox.setText(str(self.health))
-        self.karma_textbox.setText(str(self.karma))
+        if self.abilities_button_rolled:
+            self.update_rank_scores(self.std_rank_scores)
+
+            self.health = self.health * self.health_multiplier
+            self.health_textbox.setText(str(self.health))
+            self.karma_textbox.setText(str(self.karma))
 
 
 
@@ -3488,11 +3532,28 @@ class MainWindow(QMainWindow):
         elif roll < 74:
             epoint = "Feet"
         elif roll < 77:
-            epoint = "Wings"
+            row = self.physical_form_list.currentRow()
+            if self.wings_travel_power == 1 or row == 16:
+                epoint = "Wings"
+            else:
+                print("Wings energy emission point found.")
+                epoint = "Hands"
         elif roll < 82:
-            epoint = "Antennae/horns"
+            item = self.options_list.currentItem()
+            if item and item.text() == "Antennae give a Detection Power":
+                epoint = "Antennae"
+            elif item and item.text() == "Horns give +1CS to Charging attacks":
+                epoint = "Horns"
+            else:
+                print("Antennae/horns energy emission point found.")
+                epoint = "Eyes"
         elif roll < 87:
-            epoint = "Tail"
+            item = self.options_list.currentItem()
+            if item and item.text() == "Tails give the hero +1 attack":
+                epoint = "Tail"
+            else:
+                print("Tail energy emission point found.")
+                epoint = "Torso"
         elif roll <= 100:
             epoint = "Any location"
         return epoint
@@ -3572,7 +3633,7 @@ class MainWindow(QMainWindow):
         instructions_dialog.setWindowIcon(QIcon(resource_path('images/mshJudge.jpg')))
         instructions_dialog.setWindowTitle("Instructions")
         instructions_dialog.resize(700, 800)
-        instructions_label = QLabel("""MSH Character Generator 		.v 2.00.00			By TaskmasterX
+        instructions_label = QLabel("""MSH Character Generator 		.v 2.1.00			By TaskmasterX
 
 
 The MSH Character Generator, or MSHCG for short, is designed to allow players of the classic Marvel Superheroes RPG by TSR to create new characters as quickly as possible using virtually the same method as described in the Ultimate Powers Book and Players Handbook of the RPGs. This program is not meant to replace the UPB, rather it is meant to be used with the UPB. You still need the rulebooks and UPB for the Power descriptions and other useful information that is not provided by this program. The rulebooks and UPB can be found on the internet with a Google search. Also, this is not meant to completely generate a new character. This program essentially provides a quick and easy way to create the foundation, or structure, for the character that you then flesh-out after the character sheet has been saved.
@@ -3632,7 +3693,7 @@ The last thing you should do is give the character a name, identity (secret or p
 
 
 Options
-You can toggle the Use Standard Rank Scores option to use the standard scores for each rank rather than the minimum.
+You can toggle the Use Standard Rank Scores option to use the standard scores for each rank rather than the minimum. This option is disabled until you have selected a physical form.
 
 -TaskmasterX
 taskmasterxff@yahoo.com
@@ -3673,7 +3734,7 @@ taskmasterxff@yahoo.com
         title_label.setStyleSheet("color: black; font-size: 12px; background-color: rgba(0, 0, 0, 0);")
 
         # Version and copyright label
-        version_label = QLabel("Version 2.0.0.0\n\nCopyright © 2025")
+        version_label = QLabel("Version 2.1.00\n\nCopyright © 2021-2026")
         version_label.setFont(QFont('Arial', 12))
         version_label.setStyleSheet("color: black; font-size: 12px; background-color: rgba(0, 0, 0, 0);")
 
@@ -3765,7 +3826,7 @@ def show_splash():
     title_label.setGeometry(213, 50, 283, 100)
     title_label.setStyleSheet("color: black; font-size: 24px; background-color: rgba(0, 0, 0, 0);")
     title_label.setFont(QFont('Gil Sans', 20))
-    version_label = QLabel("Version 2.0\n\nCopyright ©  2025", splash)
+    version_label = QLabel("Version 2.1.00\n\nCopyright ©  2021-2026", splash)
     version_label.setAlignment(Qt.AlignCenter)
     version_label.setGeometry(213, 150, 283, 100)
     version_label.setStyleSheet("color: black; font-size: 12px; background-color: rgba(0, 0, 0, 0);")
@@ -3801,6 +3862,3 @@ def resource_path(relative_path):
 
 if __name__ == "__main__":
     show_splash()
-
-
-
