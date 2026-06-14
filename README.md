@@ -1,9 +1,4 @@
 <<<<<<< HEAD
-# MSH-Character-Generator
-The MSH Character Generator, or MSHCG for short, is designed to allow players of the classic Marvel Superheroes RPG by TSR to create new characters as quickly as possible using virtually the same method as described in the Ultimate Powers Book and Players Handbook of the RPGs. This program is not meant to replace the UPB, rather it is meant to be used with the UPB. You still need the rulebooks and UPB for the Power descriptions and other useful information that is not provided by this program. The rulebooks and UPB can be found in pdf format on the internet with a Google search. Also, this is not meant to completely generate a new character. This program essentially provides a quick and easy way to create the foundation, or structure, for the character that you then flesh-out after the character sheet has been saved.
-
-If you have any questions or comments, email me at taskmasterxff@yahoo.com
-=======
 # MSH Character Generator
 
 **Version 2.00.00**
