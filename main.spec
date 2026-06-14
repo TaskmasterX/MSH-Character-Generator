@@ -14,6 +14,8 @@ a = Analysis(
     optimize=0,
 )
 
+import sys
+
 pyz = PYZ(a.pure)
 
 exe = EXE(
@@ -29,3 +31,11 @@ exe = EXE(
     upx=True,
     console=False,
 )
+
+if sys.platform == "darwin":
+    app = BUNDLE(
+        exe,
+        name='MSH-Character-Generator.app',
+        icon='images/UPB_icon.icns',
+        bundle_identifier='com.taskmasterx.mshcharactergenerator',
+    )
