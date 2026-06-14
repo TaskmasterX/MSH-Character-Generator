@@ -1,7 +1,6 @@
-<<<<<<< HEAD
 # MSH Character Generator
 
-**Version 2.00.00**
+**Version 2.1.0**
 By TaskmasterX
 
 ## Overview
