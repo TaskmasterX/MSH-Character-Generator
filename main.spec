@@ -36,6 +36,6 @@ if sys.platform == "darwin":
     app = BUNDLE(
         exe,
         name='MSH-Character-Generator.app',
-        icon='images/UPB_icon.icns',
+        icon='images/UPB_sm.icns',
         bundle_identifier='com.taskmasterx.mshcharactergenerator',
     )
