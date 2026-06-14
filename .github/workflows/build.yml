@@ -1,0 +1,66 @@
+name: Build Cross Platform
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install -r requirements.txt
+      - run: pip install pyinstaller
+
+      - run: pyinstaller main.spec
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: dist/*
+
+  mac:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install -r requirements.txt
+      - run: pip install pyinstaller
+
+      - run: pyinstaller main.spec
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac-build
+          path: dist/*
+
+  linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install -r requirements.txt
+      - run: pip install pyinstaller
+
+      - run: pyinstaller main.spec
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: dist/*
