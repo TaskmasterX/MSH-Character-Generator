@@ -3037,7 +3037,17 @@ class MainWindow(QMainWindow):
 
     def save_button_clicked(self):
         print(f"Saving File!")
-        file_path, _ = QFileDialog.getSaveFileName(self, "Save to File", "", "Text Files (*.txt);;All Files (*)")
+        #file_path, _ = QFileDialog.getSaveFileName(self, "Save to File", "", "Text Files (*.txt);;All Files (*)")
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save to File",
+            "",
+            "Text Files (*.txt);;All Files (*)",
+            options=options
+        )
         if file_path:
             #determine which radion button is checked
             if self.secret_radio.isChecked():

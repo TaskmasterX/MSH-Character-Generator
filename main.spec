@@ -4,6 +4,7 @@ a = Analysis(
     binaries=[],
     datas=[
         ('images', 'images'),
+        ('fonts/*', 'fonts'),
     ],
     hiddenimports=[],
     hookspath=[],
