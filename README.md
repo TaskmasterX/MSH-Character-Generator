@@ -1,6 +1,6 @@
 # MSH Character Generator
 
-**Version 2.1.0**
+**Version 2.5.0**
 By TaskmasterX
 
 ## Overview
@@ -38,7 +38,7 @@ This application is intended for use alongside the official Marvel Super Heroes 
 ## Technologies Used
 
 * Python
-* PyQt5
+* PyQt6
 * Randomized character generation algorithms
 * Text file export
 

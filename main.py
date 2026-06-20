@@ -5,14 +5,14 @@ from random import randint
 from functools import partial
 from bisect import bisect
 
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QAction,
+from PyQt6.QtWidgets import (QApplication, QListWidgetItem, QMainWindow, QWidget, 
                              QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, 
                              QLineEdit, QTextEdit, QPushButton, QRadioButton, 
                              QTabWidget, QComboBox, QListWidget, QGroupBox, 
                              QAbstractItemView, QMessageBox, QFileDialog, 
                              QDialog, QScrollArea)
-from PyQt5.QtGui import QIcon, QFont, QPixmap
-from PyQt5.QtCore import Qt, QTimer
+from PyQt6.QtGui import QIcon, QFont, QPixmap, QAction
+from PyQt6.QtCore import Qt, QTimer, QSize
 
 import powerlists
 
@@ -25,7 +25,7 @@ class MainWindow(QMainWindow):
 
         #Setup parameters of the main window
         self.setWindowTitle("Marvel Super Heroes Character Generator")
-        self.setFixedSize(1100, 800)
+        self.setFixedSize(1100, 820)
         self.setWindowIcon(QIcon(resource_path('images/UPB_sm.jpg')))
 
         #create the menu bar
@@ -70,6 +70,8 @@ class MainWindow(QMainWindow):
         self.base_label = QLabel("        Base of Operations:", self)
         self.base_textbox = QLineEdit(self)
 
+        
+
         #Create the tabs
         self.tab_widget = QTabWidget()
         self.physical_form = QWidget()
@@ -82,12 +84,24 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.powers_tab, "Powers")
         self.tab_widget.addTab(self.talents_tab, "Talents")
         self.tab_widget.addTab(self.contacts_tab, "Contacts")
+        self.tab_widget.setTabEnabled(1, False)
+        self.tab_widget.setTabEnabled(2, False)
+        self.tab_widget.setTabEnabled(3, False)
+        self.tab_widget.setTabEnabled(4, False)
+        self.tab_widget.setTabText(0, "Physical &Form")
+        self.tab_widget.setTabText(1, "&Abilities")
+        self.tab_widget.setTabText(2, "&Powers")
+        self.tab_widget.setTabText(3, "&Talents")
+        self.tab_widget.setTabText(4, "&Contacts")
+        self.tab_widget.currentChanged.connect(self.tab_changed)
 
         #Create the save and exit buttons
         self.save_button = QPushButton("💾 Save", self)
         self.exit_button = QPushButton("🟥 Exit", self)
         self.save_button.setFixedSize(150,50)
         self.exit_button.setFixedSize(150,50)
+        self.save_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.exit_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.save_button.clicked.connect(self.save_button_clicked)
         self.exit_button.clicked.connect(self.exit_button_clicked)
 
@@ -163,7 +177,7 @@ class MainWindow(QMainWindow):
         group_layout.addWidget(self.base_textbox)
         radiobuttons_layout.addWidget(self.public_radio)
         radiobuttons_layout.addWidget(self.secret_radio)
-        radiobuttons_layout.setAlignment(Qt.AlignHCenter)
+        radiobuttons_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         bottom_buttons_layout.addWidget(self.save_button)
         bottom_buttons_layout.addWidget(self.exit_button)
 
@@ -172,7 +186,7 @@ class MainWindow(QMainWindow):
         foundation.addLayout(identity_layout)
         foundation.addLayout(radiobuttons_layout)
         foundation.addLayout(group_layout)
-        foundation.setAlignment(Qt.AlignTop)
+        foundation.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         #add the tab widget to the foundation and create layouts for the tabs
         foundation.addWidget(self.tab_widget)
@@ -216,6 +230,9 @@ class MainWindow(QMainWindow):
                 background-color: white; 
                 font-size: 14px;
             }
+            QMenu {
+               font-size: 10pt;
+            }
             """)
         
         
@@ -235,12 +252,14 @@ class MainWindow(QMainWindow):
         self.physical_form_list = QListWidget()
         self.physical_form_list.setFixedSize(250,360)
         for physicalform in self.physicalforms:
-            self.physical_form_list.addItem(physicalform)
+            item = QListWidgetItem(physicalform)
+            item.setSizeHint(QSize(0, 22))
+            self.physical_form_list.addItem(item)
 
         pf_list_layout.addWidget(physical_form_label)
         pf_list_layout.addWidget(self.physical_form_list)
 
-        self.physical_form_list.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.physical_form_list.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
 
         #connect physical form list click and activate signals to action
         #origin should be re-rolled each time an item is clicked, even if the same item
@@ -255,20 +274,24 @@ class MainWindow(QMainWindow):
         self.random_pf_button = QPushButton("< Random 🎲", self)
         self.random_pf_button.setFixedSize(120,40)
         origin_label = QLabel("Origin of Power:")
-        origin_label.setAlignment(Qt.AlignBottom)
+        origin_label.setAlignment(Qt.AlignmentFlag.AlignBottom)
         self.origin_textbox = QLineEdit()
+        self.origin_textbox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setupTextBox(self.origin_textbox, 260, 30, align=0)
         options_label = QLabel("Physical Form Options:")
-        options_label.setAlignment(Qt.AlignBottom)
+        options_label.setAlignment(Qt.AlignmentFlag.AlignBottom)
         self.options_list = QListWidget()
         self.options_list.setFixedSize(260,90)
         compound_label = QLabel("Changeling/Compound Forms:")
-        compound_label.setAlignment(Qt.AlignBottom)
+        compound_label.setAlignment(Qt.AlignmentFlag.AlignBottom)
         self.compound_list = QListWidget()
         self.compound_list.setFixedSize(260,90)
 
-        self.options_list.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.compound_list.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.options_list.setEnabled(False)
+        self.compound_list.setEnabled(False)
+
+        self.options_list.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.compound_list.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         #connect physical form random button click signal and action
         self.random_pf_button.clicked.connect(self.physical_form_random)
         #connect option list click and Enter key signal and action
@@ -288,7 +311,7 @@ class MainWindow(QMainWindow):
         pf_origin_layout.addWidget(compound_label)
         pf_origin_layout.addWidget(self.compound_list)
 
-        pf_origin_layout.setAlignment(Qt.AlignBottom)
+        pf_origin_layout.setAlignment(Qt.AlignmentFlag.AlignBottom)
 
 
         #add the bonuses, penalties and weaknesses boxes to the last column
@@ -299,15 +322,15 @@ class MainWindow(QMainWindow):
         bonuses_label = QLabel("Bonuses:")
         self.bonuses_textbox = QTextEdit()
         self.setupTextBox(self.bonuses_textbox, 260, 110, align=0)
-        bonuses_label.setAlignment(Qt.AlignBottom)
+        bonuses_label.setAlignment(Qt.AlignmentFlag.AlignBottom)
 
         penalties_label = QLabel("Penalties:")
         self.penalties_textbox = QTextEdit()
         self.setupTextBox(self.penalties_textbox, 260, 110, align=0)
-        penalties_label.setAlignment(Qt.AlignBottom)
+        penalties_label.setAlignment(Qt.AlignmentFlag.AlignBottom)
 
         weakness_label = QLabel("Weaknesses:")
-        weakness_label.setAlignment(Qt.AlignBottom)
+        weakness_label.setAlignment(Qt.AlignmentFlag.AlignBottom)
         self.weakness_textbox = QTextEdit()
         self.setupTextBox(self.weakness_textbox, 520, 130, align=0)
 
@@ -319,13 +342,13 @@ class MainWindow(QMainWindow):
         pf_bonuses_penalties_layout.addWidget(weakness_label,3,0)
         pf_bonuses_penalties_layout.addWidget(self.weakness_textbox,4,0,4,2)
 
-        pf_bonuses_penalties_layout.setAlignment(Qt.AlignBottom)
+        pf_bonuses_penalties_layout.setAlignment(Qt.AlignmentFlag.AlignBottom)
 
         
         #add notes label and box to the bottom of the physical forms tab
         notes_label = QLabel("Notes:")
         self.notes_textbox = QTextEdit()
-        notes_label.setAlignment(Qt.AlignBottom)
+        notes_label.setAlignment(Qt.AlignmentFlag.AlignBottom)
         self.setupTextBox(self.notes_textbox, 1055, 120, align=0)
         pf_notes_layout.addWidget(notes_label)
         pf_notes_layout.addWidget(self.notes_textbox)
@@ -367,6 +390,7 @@ class MainWindow(QMainWindow):
         table_label = QLabel("Table")
         self.table_text_box = QLineEdit()
         self.setupTextBox(self.table_text_box, 80, 30, align=1)
+        self.table_text_box.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
         #create Table group box
         table_group_box = QGroupBox("")
@@ -374,12 +398,12 @@ class MainWindow(QMainWindow):
         table_group_box.setLayout(table_group_layout)
 
         table_roll_label = QLabel("Roll")
-        table_roll_label.setAlignment(Qt.AlignBottom | Qt.AlignHCenter)
+        table_roll_label.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         table_rank_label = QLabel("Rank")
-        table_rank_label.setAlignment(Qt.AlignBottom | Qt.AlignHCenter)
+        table_rank_label.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         table_bonus_penalty_label = QLabel("Bonus /\nPenalty")
         table_bonus_penalty_label.setStyleSheet("font-size: 14px;")
-        table_bonus_penalty_label.setAlignment(Qt.AlignBottom | Qt.AlignHCenter)
+        table_bonus_penalty_label.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         table_group_layout.addWidget(table_roll_label, 0, 0)
         table_group_layout.addWidget(table_rank_label, 0, 1)
         table_group_layout.addWidget(table_bonus_penalty_label, 0, 2)
@@ -391,7 +415,7 @@ class MainWindow(QMainWindow):
         self.ironman_pixmap = QPixmap("")
         self.ironman_image.setFixedSize(350,140)
         self.abilities_button = QPushButton("🎲 Roll Abilities\nv")
-        self.abilities_button.setFixedSize(150,60)
+        self.abilities_button.setFixedSize(160,60)
         self.abilities_button.setEnabled(False)
 
         #configure click signal for the Roll Abilities button
@@ -403,10 +427,10 @@ class MainWindow(QMainWindow):
         abilities_group_box.setLayout(abilities_group_layout)
 
         abilities_rank_label = QLabel("Rank")
-        abilities_rank_label.setAlignment(Qt.AlignBottom | Qt.AlignHCenter)
+        abilities_rank_label.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         abilities_rank_number_label = QLabel("Rank\nNumber")
         abilities_rank_number_label.setStyleSheet("font-size: 14px;")
-        abilities_rank_number_label.setAlignment(Qt.AlignBottom | Qt.AlignHCenter)
+        abilities_rank_number_label.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         abilities_group_layout.addWidget(abilities_rank_label,0,1)
         abilities_group_layout.addWidget(abilities_rank_number_label,0,2)
 
@@ -430,7 +454,10 @@ class MainWindow(QMainWindow):
                 self.setupTextBox(roll_textbox, 40, 30, align=1)
                 self.setupTextBox(bonus_textbox, 40, 30, align=1)
                 self.setupTextBox(rank_roll_textbox, 140, 30, align=1)
-                
+                roll_textbox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+                rank_roll_textbox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+                bonus_textbox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+
                 ability_name_label = QLabel(ability.capitalize())
                 ability_name_label.setStyleSheet("font-size: 20px;")
                 abilities_group_layout.addWidget(ability_name_label, i, 0)
@@ -439,6 +466,8 @@ class MainWindow(QMainWindow):
                 bonus_rank_button = QPushButton("+")
                 self.setupTextBox(rank_textbox, 140, 30, align=1)
                 self.setupTextBox(rank_number_textbox, 40, 30, align=1)
+                rank_textbox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+                rank_number_textbox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
                 bonus_rank_button.setFixedSize(30,30)
                 bonus_rank_button.setEnabled(False)
                 #setup connection between each bonus button and its click signal
@@ -461,21 +490,21 @@ class MainWindow(QMainWindow):
 
                 abilities_group_layout.addWidget(rank_textbox, i, 1)
                 abilities_group_layout.addWidget(rank_number_textbox, i, 2, 
-                                                 alignment=Qt.AlignHCenter)
+                                                 alignment=Qt.AlignmentFlag.AlignHCenter)
                 abilities_group_layout.addWidget(bonus_rank_button, i, 3)
 
         
         # Add the image, button and group box to the table layout
         table_layout.addWidget(self.cap_image)
-        table_layout.addWidget(table_label, alignment=Qt.AlignHCenter | Qt.AlignBottom)
-        table_layout.addWidget(self.table_text_box, alignment=Qt.AlignHCenter)
+        table_layout.addWidget(table_label, alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom)
+        table_layout.addWidget(self.table_text_box, alignment=Qt.AlignmentFlag.AlignHCenter)
         table_layout.addWidget(table_group_box)
 
         # Add the image, button and group box to the primary layout
         primary_layout.addWidget(self.ironman_image)
         primary_layout.addWidget(self.abilities_button, 
-                                 alignment=Qt.AlignHCenter | Qt.AlignBottom)
-        primary_layout.addWidget(abilities_group_box, alignment=Qt.AlignCenter)
+                                 alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom)
+        primary_layout.addWidget(abilities_group_box, alignment=Qt.AlignmentFlag.AlignCenter)
 
 
         #create the Secondary layout
@@ -505,29 +534,31 @@ class MainWindow(QMainWindow):
         self.health_textbox = QLineEdit()
         self.health_textbox.setReadOnly(True)
         self.health_textbox.setFixedSize(80, 30)
-        self.health_textbox.setAlignment(Qt.AlignCenter)
+        self.health_textbox.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.health_textbox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         karma_label = QLabel("Karma:")
         karma_label.setStyleSheet("font-size: 14px;")
         self.karma_textbox = QLineEdit()
         self.karma_textbox.setReadOnly(True)
         self.karma_textbox.setFixedSize(80,30)
-        self.karma_textbox.setAlignment(Qt.AlignCenter)
+        self.karma_textbox.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.karma_textbox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
         #create Secondary Abilities labels
         resources_label = QLabel("Resources:")
         resources_label.setStyleSheet("font-size: 14px;")
-        resources_label.setAlignment(Qt.AlignBottom)
+        resources_label.setAlignment(Qt.AlignmentFlag.AlignBottom)
         popularity_label = QLabel("Popularity:")
         popularity_label.setStyleSheet("font-size: 14px;")
         secondary_roll_label = QLabel("Roll")
         secondary_roll_label.setStyleSheet("font-size: 14px;")
-        secondary_roll_label.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
+        secondary_roll_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom)
         secondary_rank_label = QLabel("Rank")
         secondary_rank_label.setStyleSheet("font-size: 14px;")
-        secondary_rank_label.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
+        secondary_rank_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom)
         secondary_bonus_penalty_label = QLabel("Bonus /\nPenalty")
         secondary_bonus_penalty_label.setStyleSheet("font-size: 12px;")
-        secondary_bonus_penalty_label.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
+        secondary_bonus_penalty_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom)
 
         #create dictionary {ability: {roll,rank,bonus},...}
         secondary_abilities = ["resources","","popularity"," "]
@@ -546,6 +577,8 @@ class MainWindow(QMainWindow):
                 self.setupTextBox(self.secondary_rank_textbox, 140, 30, align=1)
                 self.secondary_score_textbox = QLineEdit()
                 self.setupTextBox(self.secondary_score_textbox, 40, 30, align=1)
+                self.secondary_rank_textbox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+                self.secondary_score_textbox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
                 #add Secondary roll boxes
                 secondary_roll_textbox = QLineEdit()
@@ -554,6 +587,9 @@ class MainWindow(QMainWindow):
                 self.setupTextBox(secondary_roll_rank_text_box, 140, 30, align=1)
                 secondary_roll_bp_text_box = QLineEdit()
                 self.setupTextBox(secondary_roll_bp_text_box, 40, 30, align=1)
+                secondary_roll_textbox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+                secondary_roll_rank_text_box.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+                secondary_roll_bp_text_box.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
                 #Store in dictionary using the ability name as the key
                 self.secondary_ability_inputs[ability] = {
@@ -591,9 +627,9 @@ class MainWindow(QMainWindow):
         secondary_layout.addWidget(self.bubble_image, 0, 0)
         secondary_layout.addWidget(self.blackpanther_image, 0, 1, 2, 1)
         secondary_layout.addWidget(secondary_group_box, 3, 0, 3, 1, 
-                                   alignment=Qt.AlignHCenter | Qt.AlignBottom)
+                                   alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom)
         secondary_layout.addWidget(res_pop_roll_group_box, 3, 1, 3, 1,
-                                   alignment=Qt.AlignHCenter | Qt.AlignBottom)
+                                   alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom)
 
 
         #add the three layouts to the main layout of the tab
@@ -619,7 +655,7 @@ class MainWindow(QMainWindow):
 
         power_classes_label = QLabel("Power Classes:")
         self.power_classes_listbox = QListWidget()
-        self.power_classes_listbox.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.power_classes_listbox.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.power_classes_listbox.itemClicked.connect(self.power_classes_list_selected)
         self.power_classes_listbox.itemActivated.connect(self.power_classes_list_selected)
 
@@ -649,12 +685,15 @@ class MainWindow(QMainWindow):
         self.roll_power_button.clicked.connect(self.roll_power)
         power_label = QLabel("Power:")
         self.power_textbox = QLineEdit()
+        self.power_textbox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         bonus_powers_label = QLabel("Bonus Powers:")
         self.bonus_powers_listbox = QListWidget()
         optional_powers_label = QLabel("Optional Powers:")
         self.optional_powers_listbox = QListWidget()
-        self.bonus_powers_listbox.setSelectionMode(QAbstractItemView.MultiSelection)
-        self.optional_powers_listbox.setSelectionMode(QAbstractItemView.MultiSelection)
+        self.bonus_powers_listbox.setEnabled(False)
+        self.optional_powers_listbox.setEnabled(False)
+        self.bonus_powers_listbox.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
+        self.optional_powers_listbox.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
         
         self.add_power_button = QPushButton("➕ Add Power(s)\nv")
         self.add_power_button.setFixedSize(160,60)
@@ -668,7 +707,8 @@ class MainWindow(QMainWindow):
         self.num_powers_label = QLabel(" ")#leave blank until number of powers is rolled
         self.num_powers_label.setStyleSheet("font-size: 12px;")
         self.num_powers_label.setFixedSize(450,70)
-        self.num_powers_label.setAlignment(Qt.AlignTop)
+        self.num_powers_label.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.num_powers_label.setContentsMargins(0, 10, 0, 0)
         self.generate_weakness_button = QPushButton("🎲 Generate Weakness")
         self.generate_weakness_button.setFixedSize(170,30)
         self.generate_weakness_button.setStyleSheet("font-size: 14px;")
@@ -679,13 +719,13 @@ class MainWindow(QMainWindow):
         self.setupTextBox(self.powers_weakness_textbox, 450, 60, align=0)
 
         powers_tab_layout.addWidget(self.roll_power_classes_button, 0, 0, 
-                                    alignment=Qt.AlignHCenter)
+                                    alignment=Qt.AlignmentFlag.AlignHCenter)
         powers_tab_layout.addWidget(power_classes_label, 1, 0)
         powers_tab_layout.addWidget(self.power_classes_listbox, 2, 0, 5, 1)
         buy_remove_powers_layout.addWidget(self.buy_power_button)
         buy_remove_powers_layout.addWidget(self.remove_power_button)
 
-        powers_tab_layout.addWidget(self.roll_power_button, 0, 1, alignment=Qt.AlignHCenter)
+        powers_tab_layout.addWidget(self.roll_power_button, 0, 1, alignment=Qt.AlignmentFlag.AlignHCenter)
         powers_tab_layout.addWidget(power_label, 1, 1)
         powers_tab_layout.addWidget(self.power_textbox, 2, 1)
         powers_tab_layout.addWidget(bonus_powers_label, 3, 1)
@@ -693,15 +733,15 @@ class MainWindow(QMainWindow):
         powers_tab_layout.addWidget(optional_powers_label, 5, 1)
         powers_tab_layout.addWidget(self.optional_powers_listbox, 6, 1)
 
-        powers_tab_layout.addWidget(self.add_power_button, 0, 2, alignment=Qt.AlignTop)
+        powers_tab_layout.addWidget(self.add_power_button, 0, 2, alignment=Qt.AlignmentFlag.AlignTop)
         powers_tab_layout.addWidget(powers_label, 1, 2)
-        powers_tab_layout.addWidget(self.powers_listbox, 2, 2, 6, 2, alignment=Qt.AlignTop)
-        powers_tab_layout.addWidget(self.num_powers_label, 7, 2, alignment=Qt.AlignTop)
-        powers_tab_layout.addWidget(self.generate_weakness_button, 8, 2, alignment=Qt.AlignBottom)
+        powers_tab_layout.addWidget(self.powers_listbox, 2, 2, 6, 2, alignment=Qt.AlignmentFlag.AlignTop)
+        powers_tab_layout.addWidget(self.num_powers_label, 7, 2, alignment=Qt.AlignmentFlag.AlignTop)
+        powers_tab_layout.addWidget(self.generate_weakness_button, 8, 2, alignment=Qt.AlignmentFlag.AlignBottom)
         powers_tab_layout.addWidget(powers_weakness_label, 9, 2)
         powers_tab_layout.addWidget(self.powers_weakness_textbox, 10, 2)
 
-        powers_tab_layout.addLayout(buy_remove_powers_layout, 7, 0, alignment=Qt.AlignTop)
+        powers_tab_layout.addLayout(buy_remove_powers_layout, 7, 0, alignment=Qt.AlignmentFlag.AlignTop)
         powers_tab_layout.addWidget(self.villain_bubble_image, 8, 0, 3, 1)
         powers_tab_layout.addWidget(self.villain_image, 7, 1, 4, 1)
         
@@ -722,6 +762,7 @@ class MainWindow(QMainWindow):
         talent_classes_label = QLabel("Talent Classes:")
         self.talent_classes_listbox = QListWidget()
         self.talent_classes_listbox.setFixedSize(325,200)
+        self.talent_classes_listbox.setEnabled(False)
         self.buy_talent_button = QPushButton("💲 Buy Talent")
         self.buy_talent_button.setFixedSize(120,30)
         self.buy_talent_button.setStyleSheet("font-size: 14px;")
@@ -744,6 +785,7 @@ class MainWindow(QMainWindow):
         select_talent_label = QLabel("Select Talent:")
         self.select_talent_listbox = QListWidget()
         self.select_talent_listbox.setFixedSize(325,130)
+        self.select_talent_listbox.setEnabled(False)
         self.select_talent_listbox.itemClicked.connect(self.select_talent_selected)
         self.select_talent_listbox.itemActivated.connect(self.select_talent_selected)
         
@@ -751,9 +793,10 @@ class MainWindow(QMainWindow):
         talents_label = QLabel("Talents:")
         self.talents_listbox = QListWidget()
         self.talents_listbox.setFixedSize(375,300)
+        self.talents_listbox.setEnabled(False)
         self.num_talents_label = QLabel(" ")#leave blank until number of talents are rolled
         self.num_talents_label.setStyleSheet("font-size: 12px;")
-        self.num_talents_label.setAlignment(Qt.AlignTop)
+        self.num_talents_label.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.num_talents_label.setFixedSize(375,20)
         self.talents_listbox.itemClicked.connect(self.talent_list_selected)
         self.talents_listbox.itemActivated.connect(self.talent_list_selected)
@@ -773,25 +816,25 @@ class MainWindow(QMainWindow):
         self.talent3_image.setFixedSize(375,130)
 
         talents_tab_layout.addWidget(self.roll_talent_classes_button, 0, 0, 
-                                     alignment=Qt.AlignHCenter)
-        talents_tab_layout.addWidget(talent_classes_label, 1, 0, alignment=Qt.AlignTop)
-        talents_tab_layout.addWidget(self.talent_classes_listbox, 2, 0, 3, 1, alignment=Qt.AlignTop)
+                                     alignment=Qt.AlignmentFlag.AlignHCenter)
+        talents_tab_layout.addWidget(talent_classes_label, 1, 0, alignment=Qt.AlignmentFlag.AlignTop)
+        talents_tab_layout.addWidget(self.talent_classes_listbox, 2, 0, 3, 1, alignment=Qt.AlignmentFlag.AlignTop)
         buy_remove_talents_layout.addWidget(self.buy_talent_button)
         buy_remove_talents_layout.addWidget(self.remove_talent_button)
 
         talents_tab_layout.addWidget(self.roll_talent_button, 0, 1, 
-                                     alignment=Qt.AlignHCenter)
-        talents_tab_layout.addWidget(select_talent_label, 1, 1, alignment=Qt.AlignTop)
-        talents_tab_layout.addWidget(self.select_talent_listbox, 2, 1, 2, 1, alignment=Qt.AlignTop)
+                                     alignment=Qt.AlignmentFlag.AlignHCenter)
+        talents_tab_layout.addWidget(select_talent_label, 1, 1, alignment=Qt.AlignmentFlag.AlignTop)
+        talents_tab_layout.addWidget(self.select_talent_listbox, 2, 1, 2, 1, alignment=Qt.AlignmentFlag.AlignTop)
 
-        talents_tab_layout.addWidget(talents_label, 1, 2, alignment=Qt.AlignTop)
-        talents_tab_layout.addWidget(self.talents_listbox, 2, 2, 5, 1, alignment=Qt.AlignTop)
-        talents_tab_layout.addWidget(self.num_talents_label, 7, 2, alignment=Qt.AlignTop)
+        talents_tab_layout.addWidget(talents_label, 1, 2, alignment=Qt.AlignmentFlag.AlignTop)
+        talents_tab_layout.addWidget(self.talents_listbox, 2, 2, 5, 1, alignment=Qt.AlignmentFlag.AlignTop)
+        talents_tab_layout.addWidget(self.num_talents_label, 7, 2, alignment=Qt.AlignmentFlag.AlignTop)
 
         talents_tab_layout.addLayout(buy_remove_talents_layout, 5, 0)
         talents_tab_layout.addWidget(self.talent_image, 6, 0, 3, 1)
         talents_tab_layout.addWidget(self.talent2_image, 4, 1, 5, 1)
-        talents_tab_layout.addWidget(self.talent3_image, 8, 2, alignment=Qt.AlignTop)
+        talents_tab_layout.addWidget(self.talent3_image, 8, 2, alignment=Qt.AlignmentFlag.AlignTop)
 
         #apply the main layout to the tab
         self.talents_tab.setLayout(talents_tab_layout)
@@ -816,18 +859,20 @@ class MainWindow(QMainWindow):
 
         #Middle column
         self.roll_contact_classes_button = QPushButton("🎲 Roll Contacts\nv")
-        self.roll_contact_classes_button.setFixedSize(150,60)
+        self.roll_contact_classes_button.setFixedSize(160,60)
         self.roll_contact_classes_button.setEnabled(False)
         self.roll_contact_classes_button.clicked.connect(self.roll_contact_classes)
         select_contact_label = QLabel("Select Contact:")
         self.select_contact_listbox = QListWidget()
         self.select_contact_listbox.setFixedSize(325,424)
+        self.select_contact_listbox.setEnabled(False)
         self.select_contact_listbox.itemClicked.connect(self.select_contact_list_selected)
         self.select_contact_listbox.itemActivated.connect(self.select_contact_list_selected)
 
         #Right column
         contacts_label = QLabel("Contacts:")
         self.contacts_listbox = QListWidget()
+        self.contacts_listbox.setEnabled(False)
         self.num_contacts_label = QLabel(" ")#leave blank until number of talents are rolled
         self.num_contacts_label.setStyleSheet("font-size: 12px;")
         self.contacts_listbox.itemClicked.connect(self.contact_list_selected)
@@ -843,19 +888,20 @@ class MainWindow(QMainWindow):
         self.contact2_image.setPixmap(self.contact2_pixmap)
         self.contact2_image.setFixedSize(390,285)
 
+        contacts_tab_layout.addWidget(self.roll_contact_classes_button, 0, 1, 
+                                     alignment=Qt.AlignmentFlag.AlignHCenter)
+
         contacts_tab_layout.addWidget(contact_classes_label, 1, 0)
-        contacts_tab_layout.addWidget(self.contacts_classes_listbox, 2, 0, 2, 1, alignment=Qt.AlignTop)
-        contacts_tab_layout.addWidget(self.buy_contact_button, 4, 0, alignment=Qt.AlignTop)
+        contacts_tab_layout.addWidget(self.contacts_classes_listbox, 2, 0, 2, 1, alignment=Qt.AlignmentFlag.AlignTop)
+        contacts_tab_layout.addWidget(self.buy_contact_button, 4, 0, alignment=Qt.AlignmentFlag.AlignTop)
         contacts_tab_layout.addWidget(self.contact_image, 5, 0)
 
-        contacts_tab_layout.addWidget(self.roll_contact_classes_button, 0, 1, 
-                                     alignment=Qt.AlignHCenter)
         contacts_tab_layout.addWidget(select_contact_label, 1, 1)
-        contacts_tab_layout.addWidget(self.select_contact_listbox, 2, 1, 4, 1, alignment=Qt.AlignTop)
+        contacts_tab_layout.addWidget(self.select_contact_listbox, 2, 1, 4, 1, alignment=Qt.AlignmentFlag.AlignTop)
 
         contacts_tab_layout.addWidget(contacts_label, 1, 2)
         contacts_tab_layout.addWidget(self.contacts_listbox, 2, 2, 2, 1)
-        contacts_tab_layout.addWidget(self.num_contacts_label, 4, 2, alignment=Qt.AlignTop)
+        contacts_tab_layout.addWidget(self.num_contacts_label, 4, 2, alignment=Qt.AlignmentFlag.AlignTop)
         contacts_tab_layout.addWidget(self.contact2_image, 5, 2)
 
         #apply the main layout to the tab
@@ -867,7 +913,7 @@ class MainWindow(QMainWindow):
         textbox.setReadOnly(True)
         textbox.setFixedSize(x, y)
         if align:
-            textbox.setAlignment(Qt.AlignCenter)
+            textbox.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
 
 
@@ -908,8 +954,8 @@ class MainWindow(QMainWindow):
         self.penalties_textbox.clear()
         self.weakness_textbox.clear()
         self.notes_textbox.clear()
-        self.options_list.setEnabled(True)
-        self.compound_list.setEnabled(True)
+        self.options_list.setEnabled(False)
+        self.compound_list.setEnabled(False)
         self.physicalforms["Compound"] = 0
         self.abilities_button_rolled = False
         self.std_rank_scores_action.setDisabled(False)
@@ -936,6 +982,7 @@ class MainWindow(QMainWindow):
             inputs["score"].clear()
         self.roll_power_classes_button.setEnabled(False)
         self.power_classes_listbox.clear()
+        self.power_classes_listbox.setEnabled(False)
         self.buy_power_button.setEnabled(False)
         self.remove_power_button.setEnabled(False)
         self.num_powers_label.setText("")
@@ -945,7 +992,7 @@ class MainWindow(QMainWindow):
         self.bonus_powers_listbox.clear()
         self.optional_powers_listbox.clear()
         self.powers_listbox.clear()
-        self.powers_listbox.setEnabled(True)
+        self.powers_listbox.setEnabled(False)
         self.powers_weakness_textbox.clear()
         self.generate_weakness_button.setEnabled(False)
         self.roll_talent_classes_button.setEnabled(False)
@@ -953,16 +1000,21 @@ class MainWindow(QMainWindow):
         self.buy_talent_button.setEnabled(False)
         self.remove_talent_button.setEnabled(False)
         self.talents_listbox.clear()
-        self.talents_listbox.setEnabled(True)
+        self.talents_listbox.setEnabled(False)
         self.contacts_classes_listbox.clear()
-        self.contacts_classes_listbox.setEnabled(True)
+        self.contacts_classes_listbox.setEnabled(False)
         self.roll_contact_classes_button.setEnabled(False)
         self.select_contact_listbox.clear()
+        self.select_contact_listbox.setEnabled(False)
         self.contacts_listbox.clear()
+        self.contacts_listbox.setEnabled(False)
         self.buy_contact_button.setEnabled(False)
         self.num_powers_label.setText("")
         self.num_talents_label.setText("")
         self.num_contacts_label.setText("")
+        self.tab_widget.setTabEnabled(2, False)
+        self.tab_widget.setTabEnabled(3, False)
+        self.tab_widget.setTabEnabled(4, False)
 
 
         #origin of power
@@ -998,6 +1050,7 @@ class MainWindow(QMainWindow):
         # Get the parent QListWidget of the selected item
         # to get the index of the selected item
         index = item.listWidget().row(item)
+        print(f"Chance: {chance}")
 
         bonus1 = {
             0: {"text": "Normal Humans get +1CS Resources; ", "effects": {"resources_bonus": 1}},
@@ -1107,16 +1160,16 @@ class MainWindow(QMainWindow):
             32: {"text": "Plants automatically possess Absorption Power of Good rank in the form of enhanced photosynthesis; ", "effects": {}},
             35: {"text": "The Gas Body is a coherent cloud that retains its integrity even in the face of Amazing Intensity winds; ", "effects": {}},
             36: {"text": "Fluid Bodies have a natural variation of Phasing that permits them to permeate any porous material; ", "effects": {}},
-            37: {"text": "Physical contact with an Energy Being does Feeble damage; The Energy Body possesses an Intensity rank of its own; this is how the Health points apply to this being; ", "effects": {}},
-            38: {"text": "While Ethereals are intangible on the Earth Dimension, they regain solidity in other Dimensions. In such realms Ethereals are vulnerable to all Powers except those that specifically affect Ethereals and other disembodied beings; these Powers are Spirit Summoning and Storage, Reincarnation, and Exorcism; ", "effects": {}}
+            37: {"text": "Physical contact with an Energy Being does Feeble damage; The Energy Body possesses an Intensity rank of its own; Energy Bodies composed of visible energy types can create a ghost-like image of a human. If the Energy Body possesses Alter Ego, Energy Solidification, or Lifeform Creation, it can form a solid facsimile of a human; ", "effects": {}},
+            38: {"text": "While Ethereals are intangible on the Earth Dimension, they regain solidity in other Dimensions. In such realms Ethereals are vulnerable to all Powers except those that specifically affect Ethereals and other disembodied beings - these Powers are Spirit Summoning and Storage, Reincarnation, and Exorcism; ", "effects": {}}
         }
 
         notes3 = {
             30: {"text": "Deities automatically possess at least one Travel Power; ", "effects": {"deity_travel_power": 1}},
             31: {"text": "Resources are zero unless the animal has attached himself to a human. In this case, the Resource rank is assigned to that human; ", "effects": {}},
-            32: {"text": "Plants have no initial Contacts; the exception is if the Plant was created by scientific means, in which case its creator might be a Contact; ", "effects": {}},
+            32: {"text": "Plants have no initial Contacts; the exception is if the Plant was created by scientific means, in which case its creator might be a Contact; ", "effects": {"initial_contacts": 0}},
             35: {"text": "The only way to destroy a Gas Body is to alter its composition through Powers like Matter Conversion and Matter Control; ", "effects": {}},
-            36: {"text": "Fluid Bodies have no initial Contacts except their own race, if one exists; ", "effects": {}},
+            36: {"text": "Fluid Bodies have no initial Contacts except their own race, if one exists; ", "effects": {"initial_contacts": 0}},
             37: {"text": "The only way to destroy an Energy Body is to completely Negate or solidify its energy; ", "effects": {}}
         }
 
@@ -1153,7 +1206,11 @@ class MainWindow(QMainWindow):
             penalty = penalty1[index]
             self.penalties_textbox.insertPlainText(penalty["text"])
             for attr, value in penalty["effects"].items():
-                setattr(self, attr, getattr(self, attr) + value)
+                # Determine if physical form sets the value or modifies it
+                if attr.startswith("pf_") or attr == "initial_contacts":
+                    setattr(self, attr, value)
+                else:
+                    setattr(self, attr, getattr(self, attr) + value)
 
         # Add notes
         if index in notes1 and randint(1, 100) <= chance:
@@ -1171,9 +1228,14 @@ class MainWindow(QMainWindow):
                 self.initial_contacts = notes1[index]["effects"]["initial_contacts"]
             if self.initial_contacts > 0:
                 note = notes1[index]
-                self.contacts_listbox.addItem(note["effects"]["contact"])
+                item = QListWidgetItem(note["effects"]["contact"])
+                item.setSizeHint(QSize(0, 22))
+                self.contacts_listbox.addItem(item)
                 contact_item = self.contacts_listbox.item(self.contacts_listbox.count() - 1)
-                contact_item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                contact_item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+            for attr, value in notes1[index]["effects"].items():
+                print(f"notes1 effects: {attr} = {value}")
+                setattr(self, attr, value)
         if index in notes2 and randint(1, 100) <= chance:
             note = notes2[index]
             self.notes_textbox.insertPlainText(note["text"])
@@ -1181,12 +1243,18 @@ class MainWindow(QMainWindow):
             if "initial_contacts" in notes2[index]["effects"]:
                 self.initial_contacts = notes2[index]["effects"]["initial_contacts"]
             if self.initial_contacts > 0:
-                self.contacts_listbox.addItem(note["effects"]["contact"])
+                item = QListWidgetItem(note["effects"]["contact"])
+                item.setSizeHint(QSize(0, 22))
+                self.contacts_listbox.addItem(item)
                 contact_item = self.contacts_listbox.item(self.contacts_listbox.count() - 1)
-                contact_item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                contact_item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
         if index in notes3 and randint(1, 100) <= chance:
             note = notes3[index]
             self.notes_textbox.insertPlainText(note["text"])
+            if index == 30:
+                self.deity_travel_power = 1
+            if "initial_contacts" in notes3[index]["effects"]:#for Vegetables/Plants, Liquids
+                self.initial_contacts = notes3[index]["effects"]["initial_contacts"]
         if index in weakness1 and randint(1, 100) <= chance:
             weakness = weakness1[index]
             self.weakness_textbox.insertPlainText(weakness["text"])
@@ -1223,45 +1291,73 @@ class MainWindow(QMainWindow):
 
         #Physical Form Options
         if index == 10: # Modified Human-Extra Parts
-            self.options_list.addItem("Extra arms raise Fighting +1CS")
-            self.options_list.addItem("Duplicate organs doubles Health")
-            self.options_list.addItem("Tails give the hero +1 attack")
-            self.options_list.addItem("Wings give the hero Flight")
-            self.options_list.addItem("Extra legs give +1 area movement")
-            self.options_list.addItem("Antennae give a Detection Power")
-            self.options_list.addItem("Horns give +1CS to Charging attacks")
-            self.watcher_pixmap = QPixmap(resource_path('images/watcher_options.jpg'))
+            item = QListWidgetItem("Extra arms raise Fighting +1CS")
+            item.setSizeHint(QSize(0, 21))
+            self.options_list.addItem(item)
+            item = QListWidgetItem("Duplicate organs doubles Health")
+            item.setSizeHint(QSize(0, 21))
+            self.options_list.addItem(item)
+            item = QListWidgetItem("Tails give the hero +1 attack")
+            item.setSizeHint(QSize(0, 21))
+            self.options_list.addItem(item)
+            item = QListWidgetItem("Wings give the hero Flight")
+            item.setSizeHint(QSize(0, 21))
+            self.options_list.addItem(item)
+            item = QListWidgetItem("Extra legs give +1 area movement")
+            item.setSizeHint(QSize(0, 21))
+            self.options_list.addItem(item)
+            item = QListWidgetItem("Antennae give a Detection Power")
+            item.setSizeHint(QSize(0, 21))
+            self.options_list.addItem(item)
+            item = QListWidgetItem("Horns give +1CS to Charging")
+            item.setSizeHint(QSize(0, 21))
+            self.options_list.addItem(item)
+            self.options_list.setEnabled(True)
             self.watcher_image.setPixmap(self.watcher_pixmap)
         elif index == 16: # Demihuman-Avian
             self.options_list.addItem("Angelic")
             self.options_list.addItem("Harpy")
+            self.options_list.setEnabled(True)
             self.watcher_pixmap = QPixmap(resource_path('images/watcher_options.jpg'))
             self.watcher_image.setPixmap(self.watcher_pixmap)
         elif index == 24: # Cyborg-Mechanically Augmented
             self.options_list.addItem("Resources are Good")
             self.options_list.addItem("Resources are optionally rolled")
+            self.options_list.setEnabled(True)
             self.watcher_pixmap = QPixmap(resource_path('images/watcher_options.jpg'))
             self.watcher_image.setPixmap(self.watcher_pixmap)
         elif index == 27: # Robot-Metamorphic
-            self.options_list.addItem("2 forms")
-            self.options_list.addItem("3 forms")
-            self.options_list.addItem("4 forms")
-            self.options_list.addItem("5 forms")
+            item = QListWidgetItem("2 forms")
+            item.setSizeHint(QSize(0, 22))
+            self.options_list.addItem(item)
+            item = QListWidgetItem("3 forms")
+            item.setSizeHint(QSize(0, 22))
+            self.options_list.addItem(item)
+            item = QListWidgetItem("4 forms")
+            item.setSizeHint(QSize(0, 22))
+            self.options_list.addItem(item)
+            item = QListWidgetItem("5 forms")
+            item.setSizeHint(QSize(0, 22))
+            self.options_list.addItem(item)
+            self.options_list.setEnabled(True)
             self.watcher_pixmap = QPixmap(resource_path('images/watcher_options.jpg'))
             self.watcher_image.setPixmap(self.watcher_pixmap)
         elif index == 29: # Angel / Demon
             self.options_list.addItem("Angel")
             self.options_list.addItem("Demon")
+            self.options_list.setEnabled(True)
             self.watcher_pixmap = QPixmap(resource_path('images/watcher_options.jpg'))
             self.watcher_image.setPixmap(self.watcher_pixmap)
         elif index == 31: # Animal
             self.options_list.addItem("Terrestrial Animal")
             self.options_list.addItem("Extraterrestrial Animal")
+            self.options_list.setEnabled(True)
             self.watcher_pixmap = QPixmap(resource_path('images/watcher_options.jpg'))
             self.watcher_image.setPixmap(self.watcher_pixmap)
 
         #Changeling/Compound Form List
         if index == 40 or index == 41: # Compound and Changeling
+            self.compound_list.setEnabled(True)
             self.watcher_pixmap = QPixmap(resource_path('images/watcher_compound.jpg'))
             self.watcher_image.setPixmap(self.watcher_pixmap)
             num = self.number_of_compoundforms()
@@ -1274,16 +1370,18 @@ class MainWindow(QMainWindow):
                     continue
                 item = self.physical_form_list.item(formindex)
                 form = item.text()
-                self.compound_list.addItem(form)
+                item = QListWidgetItem(form)
+                item.setSizeHint(QSize(0, 20))
+                self.compound_list.addItem(item)
                 num -= 1
         
-        #enable Roll Abilities button if form does not require using the options
+        #enable Abilities tab (Roll Abilities button is enabled when the tab is selected) if form does not require using the options
         #or compound lists; make sure button remains disabled until lists are used
         options = self.options_list.count()
         compound_forms = self.compound_list.count()
         if options == 0 and compound_forms == 0:
+            self.tab_widget.setTabEnabled(1, True)
             self.abilities_button.setEnabled(True)
-            self.abilities_button.setFocus()
             self.watcher_pixmap = QPixmap(resource_path('images/watcher_abilities.jpg'))
             self.watcher_image.setPixmap(self.watcher_pixmap)
             self.cap_pixmap = QPixmap(resource_path('images/capt_america.jpg'))
@@ -1291,6 +1389,7 @@ class MainWindow(QMainWindow):
             self.ironman_pixmap = QPixmap(resource_path('images/bubble_abilities.jpg'))
             self.ironman_image.setPixmap(self.ironman_pixmap)
         else:
+            self.tab_widget.setTabEnabled(1, False)
             self.abilities_button.setEnabled(False)
             self.cap_pixmap = QPixmap("")
             self.cap_image.setPixmap(self.cap_pixmap)
@@ -1339,18 +1438,18 @@ class MainWindow(QMainWindow):
         index = list_widget.row(item)
         # to get the index of the selected item in the Physical Form list
         row = self.physical_form_list.currentRow()
+        effective_row = row
         print("Physical Form Option List Clicked!")
         print(f"options_list_selected item= {item}")
         print(f"options_list_selected text= {selected_text}")
         print(f"options_list_selected index= {index}")
         print(f"options_list_selected physical form row= {row}")
-        print(f"resource_rank={self.resources_rank}")
 
         chance = 100
 
         #If this is a Compound form get the form from the current compound form
         #instead of the current physical form
-        if row == 40:
+        if row in (40, 41):
             #add the optional form to the compound_form_options_list at the same
             #index as the compound_form_list index so that it can be added 
             #correctly to the file when saved
@@ -1360,11 +1459,11 @@ class MainWindow(QMainWindow):
             self.current_compound_form_index += 1
             #find the compound form's index in the Physical Form list
             current_compound = self.current_compound_form
-            matched_physical_forms = self.physical_form_list.findItems(current_compound, Qt.MatchExactly)
+            matched_physical_forms = self.physical_form_list.findItems(current_compound, Qt.MatchFlag.MatchExactly)
             if matched_physical_forms:  # Ensure the item exists
                 #find the row of the item in the Physical Form List
                 option = self.physical_form_list.row(matched_physical_forms[0])
-
+                effective_row = option
                 num = self.compound_forms
                 print(f"options_list_selected num= {num}")
                 chance = 100 / num
@@ -1414,7 +1513,7 @@ class MainWindow(QMainWindow):
              
 
         print(f"options_list_selected chance= {chance}")
-        if row == 10: #Modified Human-Extra Parts
+        if effective_row == 10: #Modified Human-Extra Parts
             if index == 0:
                 self.fighting_bonus += 1
                 print(f"+1CS to Fighting")
@@ -1433,7 +1532,7 @@ class MainWindow(QMainWindow):
                 self.detection_power = 1
             if index == 6:
                 print(f"+1CS to Charging attacks")
-        elif row == 16: #Demihuman-Avian
+        elif effective_row == 16: #Demihuman-Avian
             if index == 0:
                 compound_option_chance1 = randint(1,100)
                 print(f"options_list_selected compound_option_chance1= {compound_option_chance1}")
@@ -1453,12 +1552,12 @@ class MainWindow(QMainWindow):
                                                     "are modified to also serve "
                                                     "as wings and feather-covered"
                                                     "legs that end in bird Claws; ")
-        elif row == 24: #Cyborg-Mechanically Augmented
+        elif effective_row == 24: #Cyborg-Mechanically Augmented
             if index == 0:
                 self.pf_resources_rank = 4 #set resources to Good
             if index == 1:
                 pass#Resources are optionally rolled
-        elif row == 27: #Robot-Metamorphic (roll Abilities for each form)
+        elif effective_row == 27: #Robot-Metamorphic (roll Abilities for each form)
             #apply penalty to abilities based on the number of forms above 2 (index 0)
             self.fighting_bonus -= index
             self.agility_bonus -= index
@@ -1467,8 +1566,7 @@ class MainWindow(QMainWindow):
             self.reason_bonus -= index
             self.intuition_bonus -= index
             self.psyche_bonus -= index
-            #self.notes_textbox.insertPlainText(f"Robot-Metamorphic: {index+2} forms; ")
-        elif row == 29: #Angel/Demon
+        elif effective_row == 29: #Angel/Demon
             if index == 0:
                 compound_option_chance4 = randint(1,100)
                 print(f"options_list_selected compound_option_chance4= {compound_option_chance4}")
@@ -1491,7 +1589,7 @@ class MainWindow(QMainWindow):
                 if compound_option_chance5b <= chance:
                     self.notes_textbox.insertPlainText("Demons automatically possess "
                     "Good Fire Generation and Specific Invulnerability to Heat and Fire; ")
-        elif row == 31: #Animal
+        elif effective_row == 31: #Animal
             self.animal_detection = 1
             if index == 0 :
                 print(f"Terrestrial Animals roll on Table 1")
@@ -1503,23 +1601,19 @@ class MainWindow(QMainWindow):
         #if the form is a Compound then clear the list in case another form has options
         #the options are stored in the compound_form_options_list
         print(f"row={row}")
-        if row == 40:
-            print("row=40")
+        if row in (40, 41):
             #clear the list
             self.options_list.clear()
-        else:
-            print("row not 40")
-            self.options_list.setEnabled(False)
 
-        #if still choosing Compound forms enable the compound list to continue choosing
-        self.compound_list.setEnabled(True)
+        self.options_list.setEnabled(False)
 
         #enable Roll Abilities button unless this is a Compound form where 
         #all forms have not been selected
         compound_forms = self.compound_list.count()
         if compound_forms == 0:
+            self.tab_widget.setTabEnabled(1, True)
             self.abilities_button.setEnabled(True)
-            self.abilities_button.setFocus()
+            self.compound_list.setEnabled(False)
             self.watcher_pixmap = QPixmap(resource_path('images/watcher_abilities.jpg'))
             self.watcher_image.setPixmap(self.watcher_pixmap)
             self.cap_pixmap = QPixmap(resource_path('images/capt_america.jpg'))
@@ -1527,6 +1621,7 @@ class MainWindow(QMainWindow):
             self.ironman_pixmap = QPixmap(resource_path('images/bubble_abilities.jpg'))
             self.ironman_image.setPixmap(self.ironman_pixmap)
         else:
+            self.compound_list.setEnabled(True)
             self.watcher_pixmap = QPixmap(resource_path('images/watcher_compound.jpg'))
             self.watcher_image.setPixmap(self.watcher_pixmap)
 
@@ -1543,7 +1638,6 @@ class MainWindow(QMainWindow):
         print(f"compound list item= {item}")
         print(f"compound list text= {selected_text}")
         print(f"compound list index= {index}")
-        print(f"resource_rank={self.resources_rank}")
 
         self.current_compound_form = selected_text
 
@@ -1552,7 +1646,7 @@ class MainWindow(QMainWindow):
         #the bonuses and penalties boxes
         #First, create a list of items found matching the form clicked in 
         #Compound List with the form in the Physical Form List (should be just one item)
-        matched_physical_forms = self.physical_form_list.findItems(selected_text, Qt.MatchExactly)
+        matched_physical_forms = self.physical_form_list.findItems(selected_text, Qt.MatchFlag.MatchExactly)
         if matched_physical_forms:  # Ensure the item exists
             #find the row of the item in the Physical Form List
             physicalformindex = self.physical_form_list.row(matched_physical_forms[0])
@@ -1605,8 +1699,8 @@ class MainWindow(QMainWindow):
         compound_forms = self.compound_list.count()
         if compound_forms == 0:#if all forms have been chosen
             if options > 0 and options_selected:#if options were available and selected
+                self.tab_widget.setTabEnabled(1, True)
                 self.abilities_button.setEnabled(True)
-                self.abilities_button.setFocus()
                 self.watcher_pixmap = QPixmap(resource_path('images/watcher_abilities.jpg'))
                 self.watcher_image.setPixmap(self.watcher_pixmap)
                 self.cap_pixmap = QPixmap(resource_path('images/capt_america.jpg'))
@@ -1614,14 +1708,19 @@ class MainWindow(QMainWindow):
                 self.ironman_pixmap = QPixmap(resource_path('images/bubble_abilities.jpg'))
                 self.ironman_image.setPixmap(self.ironman_pixmap)
             elif options == 0:#if no options are needed to be selected
+                self.tab_widget.setTabEnabled(1, True)
                 self.abilities_button.setEnabled(True)
-                self.abilities_button.setFocus()
                 self.watcher_pixmap = QPixmap(resource_path('images/watcher_abilities.jpg'))
                 self.watcher_image.setPixmap(self.watcher_pixmap)
                 self.cap_pixmap = QPixmap(resource_path('images/capt_america.jpg'))
                 self.cap_image.setPixmap(self.cap_pixmap)
                 self.ironman_pixmap = QPixmap(resource_path('images/bubble_abilities.jpg'))
                 self.ironman_image.setPixmap(self.ironman_pixmap)
+            elif options > 0:
+                self.options_list.setEnabled(True)
+            else:
+                self.options_list.setEnabled(False)
+            self.compound_list.setEnabled(False)
 
         #if options need to be selected disable the compound list to force the 
         #user to select an option before continuing choosing Compound forms
@@ -1633,6 +1732,19 @@ class MainWindow(QMainWindow):
             self.compound_list.setEnabled(False)
         if not options:
             self.current_compound_form_index += 1
+
+
+
+    def tab_changed(self, index):
+        print(f"Tab changed to index: {index}")
+        if index == 1:  # Abilities tab
+            self.abilities_button.setFocus()
+        elif index == 2:  # Powers tab
+            self.roll_power_classes_button.setFocus()
+        elif index == 3:  # Talents tab
+            self.roll_talent_classes_button.setFocus()
+        elif index == 4:  # Contacts tab
+            self.roll_contact_classes_button.setFocus()
 
 
 
@@ -1690,8 +1802,8 @@ class MainWindow(QMainWindow):
         self.fill_roll_textboxes(self.secondary_ability_inputs.items(), table)
 
         if self.ability_bonus == 0:
+            self.tab_widget.setTabEnabled(2, True)
             self.roll_power_classes_button.setEnabled(True)
-            self.roll_power_classes_button.setFocus()
             self.bubble_pixmap = QPixmap(resource_path('images/bubble_blackpanther.jpg'))
             self.bubble_image.setPixmap(self.bubble_pixmap)
             self.blackpanther_pixmap = QPixmap(resource_path('images/black_panther.jpg'))
@@ -1761,23 +1873,22 @@ class MainWindow(QMainWindow):
                 for ability in self.ability_inputs:
                     bonus_button = self.ability_inputs[ability]["bonus_button"]
                     bonus_button.setEnabled(False)
+                self.tab_widget.setTabEnabled(2, True)
                 self.roll_power_classes_button.setEnabled(True)
-                self.roll_power_classes_button.setFocus()
                 self.ironman_pixmap = QPixmap("")
                 self.ironman_image.setPixmap(self.ironman_pixmap)
 
+                #display image to move user to the Powers tab    
+                self.bubble_pixmap = QPixmap(resource_path('images/bubble_blackpanther.jpg'))
+                self.bubble_image.setPixmap(self.bubble_pixmap)
+                self.blackpanther_pixmap = QPixmap(resource_path('images/black_panther.jpg'))
+                self.blackpanther_image.setPixmap(self.blackpanther_pixmap)
+                self.villain_bubble_pixmap = QPixmap(resource_path('images/drdoom_bubble.jpg'))
+                self.villain_bubble_image.setPixmap(self.villain_bubble_pixmap)
+                self.villain_pixmap = QPixmap(resource_path('images/drdoom.jpg'))
+                self.villain_image.setPixmap(self.villain_pixmap)
+
             self.ability_bonus_button_was_clicked += 1
-
-        #display image to move user to the Powers tab    
-        self.bubble_pixmap = QPixmap(resource_path('images/bubble_blackpanther.jpg'))
-        self.bubble_image.setPixmap(self.bubble_pixmap)
-        self.blackpanther_pixmap = QPixmap(resource_path('images/black_panther.jpg'))
-        self.blackpanther_image.setPixmap(self.blackpanther_pixmap)
-        self.villain_bubble_pixmap = QPixmap(resource_path('images/drdoom_bubble.jpg'))
-        self.villain_bubble_image.setPixmap(self.villain_bubble_pixmap)
-        self.villain_pixmap = QPixmap(resource_path('images/drdoom.jpg'))
-        self.villain_image.setPixmap(self.villain_pixmap)
-
 
 
     #Click the Roll Power Classes button
@@ -1787,12 +1898,15 @@ class MainWindow(QMainWindow):
         #disable the Abilities tab and reset the Powers tab
         self.abilities_button.setEnabled(False)
         self.power_classes_listbox.clear()
+        self.power_classes_listbox.setEnabled(True)
         self.roll_power_button.setEnabled(False)
         self.power_textbox.clear()
         self.add_power_button.setEnabled(False)
         self.bonus_powers_listbox.clear()
         self.optional_powers_listbox.clear()
         self.powers_listbox.clear()
+        self.powers_listbox.setEnabled(False)
+        self.generate_weakness_button.setEnabled(False)
 
         self.villain_bubble_pixmap = QPixmap(resource_path('images/mystique_bubble.jpg'))
         self.villain_bubble_image.setPixmap(self.villain_bubble_pixmap)
@@ -1813,9 +1927,11 @@ class MainWindow(QMainWindow):
             power = powers[index]
             rank = self.ranks[4]
             score = self.min_std_rank_score(rank)
-            self.powers_listbox.addItem(f"{power} - {rank} ({score})")
+            item = QListWidgetItem(f"{power} - {rank} ({score})")
+            item.setSizeHint(QSize(0, 22))
+            self.powers_listbox.addItem(item)
             item = self.powers_listbox.item(0)
-            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
             # 2nd detection power
             roll = randint(1,100)
             index2 = bisect(roll_thresholds, roll)
@@ -1824,9 +1940,11 @@ class MainWindow(QMainWindow):
                 index2 = bisect(roll_thresholds, roll)
             power = powers[index2]
             score = self.min_std_rank_score(rank)
-            self.powers_listbox.addItem(f"{power} - {rank} ({score})")
+            item = QListWidgetItem(f"{power} - {rank} ({score})")
+            item.setSizeHint(QSize(0, 22))
+            self.powers_listbox.addItem(item)
             item = self.powers_listbox.item(1)
-            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
         
         item = self.physical_form_list.currentItem()
         selected_text = item.text()
@@ -1843,9 +1961,15 @@ class MainWindow(QMainWindow):
             rank = self.ranks[rank_index]
             score = self.min_std_rank_score(rank)
             epoint = self.energy_emission_body_part()
-            self.powers_listbox.addItem(f"{power} - {rank} ({score}); emitted from {epoint}")
+            item = QListWidgetItem(f"{power} - {rank} ({score}); emitted from {epoint}")
+            item.setSizeHint(QSize(0, 22))
+            self.powers_listbox.addItem(item)
             item = self.powers_listbox.item(0)
-            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+            #add Energy Control as an Optional Power to Power Classes Listbox
+            item = QListWidgetItem("Energy Control")
+            item.setSizeHint(QSize(0, 22))
+            self.power_classes_listbox.addItem(item)
 
         if self.deity_travel_power == 1:
             roll = randint(1,100)
@@ -1859,10 +1983,11 @@ class MainWindow(QMainWindow):
             rank_index = self.ability_roll(table, roll)
             rank = self.ranks[rank_index]
             score = self.min_std_rank_score(rank)
-            #epoint = self.energy_emission_body_part()
-            self.powers_listbox.addItem(f"{power} - {rank} ({score})")
+            item = QListWidgetItem(f"{power} - {rank} ({score})")
+            item.setSizeHint(QSize(0, 22))
+            self.powers_listbox.addItem(item)
             item = self.powers_listbox.item(0)
-            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
         
         if self.wings_travel_power == 1:
             table = self.physicalforms[selected_text]
@@ -1870,10 +1995,11 @@ class MainWindow(QMainWindow):
             rank_index = self.ability_roll(table, roll)
             rank = self.ranks[rank_index]
             score = self.min_std_rank_score(rank)
-            #epoint = self.energy_emission_body_part()
-            self.powers_listbox.addItem(f"Winged Flight - {rank} ({score})")
+            item = QListWidgetItem(f"Winged Flight - {rank} ({score})")
+            item.setSizeHint(QSize(0, 22))
+            self.powers_listbox.addItem(item)
             item = self.powers_listbox.item(0)
-            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
 
         if self.detection_power == 1:
             roll = randint(1,100)
@@ -1887,10 +2013,11 @@ class MainWindow(QMainWindow):
             rank_index = self.ability_roll(table, roll)
             rank = self.ranks[rank_index]
             score = self.min_std_rank_score(rank)
-            #epoint = self.energy_emission_body_part()
-            self.powers_listbox.addItem(f"Antennae: {power} - {rank} ({score})")
+            item = QListWidgetItem(f"Antennae: {power} - {rank} ({score})")
+            item.setSizeHint(QSize(0, 22))
+            self.powers_listbox.addItem(item)
             item = self.powers_listbox.item(0)
-            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
 
         self.power_rank_above_remarkable = 0
         #roll number of powers
@@ -1903,7 +2030,9 @@ class MainWindow(QMainWindow):
         while min > 0:
             print(f"min={min}")
             power_class = self.roll_power_class()
-            self.power_classes_listbox.addItem(power_class)
+            item = QListWidgetItem(power_class)
+            item.setSizeHint(QSize(0, 22))
+            self.power_classes_listbox.addItem(item)
             min -= 1
             print(f"min={min}")
         #set the min to 0 to start adding from 0 when powers are added to the list
@@ -1913,7 +2042,6 @@ class MainWindow(QMainWindow):
         #enable buy and remove buttons
         self.buy_power_button.setEnabled(True)
         self.remove_power_button.setEnabled(True)
-        self.power_classes_listbox.setFocus()
         #if powers were purchased for Resources, reset back to original Resources
         if len(self.purchased_powers) > 0:
             print("Resources were spent on Powers, resetting...")
@@ -1966,6 +2094,7 @@ class MainWindow(QMainWindow):
             #roll an additional power class and add it to the list
             print("Adding Power!")
             power_class = self.roll_power_class()
+            self.power_classes_listbox.setEnabled(True)
             self.power_classes_listbox.addItem(power_class)
             self.purchased_powers.append(power_class)
             self.resources_rank -= 2
@@ -1983,7 +2112,7 @@ class MainWindow(QMainWindow):
             self.display_message(resource_path('images/oops.jpg'), "No Power Class Selected!", "You need to select a Power Class to remove!", "warning", buttons=0)
         else:
             result = self.display_message(resource_path('images/question.jpg'), "Confirm Removing Power", "Are you sure you want to remove this power class?", "question", buttons=1)
-            if result == QMessageBox.Ok:
+            if result == QMessageBox.StandardButton.Ok:
                 print("User clicked OK")
                 power = self.power_classes_listbox.currentRow()
                 power_item = self.power_classes_listbox.item(power)
@@ -2015,10 +2144,11 @@ class MainWindow(QMainWindow):
                         self.generate_weakness_button.setEnabled(True)
                         self.roll_power_button.setEnabled(False)
                         self.add_power_button.setEnabled(False)
+                        self.power_classes_listbox.setEnabled(False)
                         self.bonus_powers_listbox.clear()
                         self.optional_powers_listbox.clear()
                         self.power_textbox.clear()
-            elif result == QMessageBox.Cancel:
+            elif result == QMessageBox.StandardButton.Cancel:
                 print("User clicked Cancel")
 
 
@@ -2041,6 +2171,8 @@ class MainWindow(QMainWindow):
         #reset the bonus and optional power list boxes
         self.bonus_powers_listbox.clear()
         self.optional_powers_listbox.clear()
+        self.bonus_powers_listbox.setEnabled(False)
+        self.optional_powers_listbox.setEnabled(False)
 
         self.villain_bubble_pixmap = QPixmap(resource_path('images/thanos_bubble.jpg'))
         self.villain_bubble_image.setPixmap(self.villain_bubble_pixmap)
@@ -2198,11 +2330,17 @@ class MainWindow(QMainWindow):
                 has_option = bool(option_powers)  # True if list is not empty
                 
                 if has_bonus:
+                    self.bonus_powers_listbox.setEnabled(True)
                     for bonus_power in bonus_powers:
-                        self.bonus_powers_listbox.addItem(bonus_power)
+                        item = QListWidgetItem(bonus_power)
+                        item.setSizeHint(QSize(0, 22))
+                        self.bonus_powers_listbox.addItem(item)
                 if has_option:
+                    self.optional_powers_listbox.setEnabled(True)
                     for option_power in option_powers:
-                        self.optional_powers_listbox.addItem(option_power)
+                        item = QListWidgetItem(option_power)
+                        item.setSizeHint(QSize(0, 22))
+                        self.optional_powers_listbox.addItem(item)
 
 
 
@@ -2266,6 +2404,7 @@ class MainWindow(QMainWindow):
 
             else:#roll the power ranks and add them to the Powers List and update the min/max
                 #roll the rank for the main power and display it in the Powers list
+                self.powers_listbox.setEnabled(True)
                 roll = randint(1,100)
                 item = self.physical_form_list.currentItem()
                 selected_text = item.text()
@@ -2299,17 +2438,23 @@ class MainWindow(QMainWindow):
                 if power != '':
                     if power_class == "Energy Emission":
                         epoint = self.energy_emission_body_part()
-                        self.powers_listbox.addItem(f"{power} - {rank} ({score}); emitted from {epoint}")
+                        item = QListWidgetItem(f"{power} - {rank} ({score}); emitted from {epoint}")
+                        item.setSizeHint(QSize(0, 22))
+                        self.powers_listbox.addItem(item)
                     elif power == "Biophysical Control*":#show the option window
                         dialog = BiophysicalOptionDialog(self)
-                        if dialog.exec_():#get the user's selected option
+                        if dialog.exec():#get the user's selected option
                             selected_option = dialog.get_selected_option()
                             if selected_option == "Random":#if random was selected roll the option
                                 selected_option = self.biophysical_random_option()
                             if selected_option:
-                                self.powers_listbox.addItem(f"{power} ({selected_option}) - {rank} ({score})")
+                                item = QListWidgetItem(f"{power} ({selected_option}) - {rank} ({score})")
+                                item.setSizeHint(QSize(0, 22))
+                                self.powers_listbox.addItem(item)
                     else:
-                        self.powers_listbox.addItem(f"{power} - {rank} ({score})")
+                        item = QListWidgetItem(f"{power} - {rank} ({score})")
+                        item.setSizeHint(QSize(0, 22))
+                        self.powers_listbox.addItem(item)
 
                 #roll the power ranks for the bonus powers
                 for bonus_power in bonus_powers_selected:
@@ -2322,11 +2467,15 @@ class MainWindow(QMainWindow):
                     #if energy emission power check for emission point
                     if bonus_power_name in powerlists.energy_emission_powers_list.keys():
                         epoint = self.energy_emission_body_part()
-                        self.powers_listbox.addItem(f"{bonus_power_name} - {rank} ({score}); emitted from {epoint}")
+                        item = QListWidgetItem(f"{bonus_power_name} - {rank} ({score}); emitted from {epoint}")
+                        item.setSizeHint(QSize(0, 22))
+                        self.powers_listbox.addItem(item)
                     else:
-                        self.powers_listbox.addItem(f"{bonus_power_name} - {rank} ({score})")
+                        item = QListWidgetItem(f"{bonus_power_name} - {rank} ({score})")
+                        item.setSizeHint(QSize(0, 22))
+                        self.powers_listbox.addItem(item)
                 self.bonus_powers_listbox.clear()
-                #roll the power ranks fore the optional powers
+                #roll the power ranks for the optional powers
                 for option_power in option_powers_selected:
                     roll = randint(1,100)
                     rank_index = self.ability_roll(table, roll)
@@ -2339,24 +2488,36 @@ class MainWindow(QMainWindow):
                         #if energy emission power check for emission point
                         if option_power_name in powerlists.energy_emission_powers_list.keys():
                             epoint = self.energy_emission_body_part()
-                            self.powers_listbox.addItem(f"{option_power_name} - {rank} ({score}); emitted from {epoint}")
+                            item = QListWidgetItem(f"{option_power_name} - {rank} ({score}); emitted from {epoint}")
+                            item.setSizeHint(QSize(0, 22))
+                            self.powers_listbox.addItem(item)
                         elif option_power_name == "Biophysical Control*":#show the option window
                             dialog = BiophysicalOptionDialog(self)
-                            if dialog.exec_():#get the user's selected option
+                            if dialog.exec():#get the user's selected option
                                 selected_option = dialog.get_selected_option()
                                 if selected_option == "Random":#if random was selected roll the option
                                     selected_option = self.biophysical_random_option()
                                 if selected_option:
-                                    self.powers_listbox.addItem(f"{power} ({selected_option}) - {rank} ({score})")
+                                    item = QListWidgetItem(f"{power} ({selected_option}) - {rank} ({score})")
+                                    item.setSizeHint(QSize(0, 22))
+                                    self.powers_listbox.addItem(item)
                         else:
-                            self.powers_listbox.addItem(f"{option_power_name} - {rank} ({score})")
+                            item = QListWidgetItem(f"{option_power_name} - {rank} ({score})")
+                            item.setSizeHint(QSize(0, 22))
+                            self.powers_listbox.addItem(item)
                     elif option_power_name == "Magical Power":#convert Magical Power to Magical when adding it to the Power Classes list
-                        self.power_classes_listbox.addItem("Magical")
+                        item = QListWidgetItem("Magical")
+                        item.setSizeHint(QSize(0, 22))
+                        self.power_classes_listbox.addItem(item)
                     else:
-                        self.power_classes_listbox.addItem(option_power_name)
+                        item = QListWidgetItem(option_power_name)
+                        item.setSizeHint(QSize(0, 22))
+                        self.power_classes_listbox.addItem(item)
 
-                    #self.optional_powers_listbox.takeItem(self.optional_powers_listbox.row(option_power))
                 self.optional_powers_listbox.clear()
+
+                self.bonus_powers_listbox.setEnabled(False)
+                self.optional_powers_listbox.setEnabled(False)
                     
                 #calculate the new min power slots and update the label
                 self.number_of_powers["min"] = cost
@@ -2373,6 +2534,7 @@ class MainWindow(QMainWindow):
                     self.generate_weakness_button.setEnabled(True)
                     self.roll_power_button.setEnabled(False)
                     self.add_power_button.setEnabled(False)
+                    self.power_classes_listbox.setEnabled(False)
                     self.bonus_powers_listbox.clear()
                     self.optional_powers_listbox.clear()
                     self.generate_weakness_button.setFocus()
@@ -2396,9 +2558,9 @@ class MainWindow(QMainWindow):
 
     #Click the Powers list; prompts user to remove the selected power
     def powers_list_selected(self, power_item):
-        if power_item.flags() & Qt.ItemIsEnabled:
+        if power_item.flags() & Qt.ItemFlag.ItemIsEnabled:
             result = self.display_message(resource_path('images/question.jpg'), "Confirm Removing Power", "Are you sure you want to remove this power?", "question", buttons=1)
-            if result == QMessageBox.Ok:
+            if result == QMessageBox.StandardButton.Ok:
                 print("User clicked OK")
                 #refund a power slot depending on how much the power cost (if it has a *)
                 min = self.number_of_powers["min"]
@@ -2414,7 +2576,7 @@ class MainWindow(QMainWindow):
                 self.num_powers_label.setText(f"Min: {min} / Max: {max}")
                 power = self.powers_listbox.currentRow()
                 self.powers_listbox.takeItem(power)
-            elif result == QMessageBox.Cancel:
+            elif result == QMessageBox.StandardButton.Cancel:
                 print("User clicked Cancel")
 
 
@@ -2469,9 +2631,9 @@ class MainWindow(QMainWindow):
         self.roll_power_classes_button.setEnabled(False)
         self.buy_power_button.setEnabled(False)
         self.remove_power_button.setEnabled(False)
-        self.roll_talent_classes_button.setEnabled(True)
         self.powers_listbox.setEnabled(False)
-        self.roll_talent_classes_button.setFocus()
+        self.tab_widget.setTabEnabled(3, True)
+        self.roll_talent_classes_button.setEnabled(True)
 
         self.villain_bubble_pixmap = QPixmap(resource_path('images/juggernaut_bubble.jpg'))
         self.villain_bubble_image.setPixmap(self.villain_bubble_pixmap)
@@ -2487,15 +2649,23 @@ class MainWindow(QMainWindow):
         print("Rolling Talent Classes...")
         print(f"resource_rank={self.resources_rank}")
         self.talent_classes_listbox.clear()
+        self.talent_classes_listbox.setEnabled(True)
         self.roll_talent_button.setEnabled(False)
         self.select_talent_listbox.clear()
         self.talents_listbox.clear()
+        self.talents_listbox.setEnabled(False)
         self.roll_number_powers("talents")
         min = self.number_of_talents["min"]
         max = self.number_of_talents["max"]
         print(f"Number of talents - min={min} / max={max}")
+        self.villain_bubble_pixmap = QPixmap(resource_path(''))
+        self.villain_bubble_image.setPixmap(self.villain_bubble_pixmap)
+        self.villain_pixmap = QPixmap(resource_path(''))
+        self.villain_image.setPixmap(self.villain_pixmap)
         if min == 0:
             self.roll_contact_classes_button.setEnabled(True)
+            self.talent_classes_listbox.setEnabled(False)
+            self.tab_widget.setTabEnabled(4, True)
             self.talent2_pixmap = QPixmap(resource_path('images/capt_marvel.jpg'))
             self.talent2_image.setPixmap(self.talent2_pixmap)
             self.contact_pixmap = QPixmap(resource_path('images/wolverine.jpg'))
@@ -2516,7 +2686,6 @@ class MainWindow(QMainWindow):
         #enable buy and remove buttons
         self.buy_talent_button.setEnabled(True)
         self.remove_talent_button.setEnabled(True)
-        self.talent_classes_listbox.setFocus()
         self.talent_pixmap = QPixmap("")
         self.talent_image.setPixmap(self.talent_pixmap)
         #if talents were purchased for Resources, reset back to original Resources
@@ -2582,6 +2751,7 @@ class MainWindow(QMainWindow):
             self.roll_talent_class()
             self.talent_bought += 1
             self.resources_rank -= 1
+            self.talent_classes_listbox.setEnabled(True)
             print(f"resources_rank={self.resources_rank}")
             print(f"self.talent_bought={self.talent_bought}")
             self.talent2_pixmap = QPixmap(resource_path('images/spidey.jpg'))
@@ -2599,7 +2769,7 @@ class MainWindow(QMainWindow):
             self.display_message(resource_path('images/oops.jpg'), "No Talent Class Selected!", "You need to select a Talent Class to remove!", "warning", buttons=0)
         else:
             result = self.display_message(resource_path('images/question.jpg'), "Confirm Removing Talent", "Are you sure you want to remove this talent class?", "question", buttons=1)
-            if result == QMessageBox.Ok:
+            if result == QMessageBox.StandardButton.Ok:
                 print("User clicked OK")
                 power = self.talent_classes_listbox.currentRow()
                 self.talent_classes_listbox.takeItem(power)
@@ -2607,7 +2777,8 @@ class MainWindow(QMainWindow):
                 #buttons and enable the generate weakness button
                 if self.talent_classes_listbox.count() == 0:
                     print("The last Talent Class was removed from the list")
-            elif result == QMessageBox.Cancel:
+                    self.talent_classes_listbox.setEnabled(False)
+            elif result == QMessageBox.StandardButton.Cancel:
                 print("User clicked Cancel")
 
 
@@ -2629,6 +2800,7 @@ class MainWindow(QMainWindow):
         talent_class = item.text()
         self.select_talent_listbox.clear()
         self.select_talent_listbox.setFocus()
+        self.select_talent_listbox.setEnabled(True)
         self.talent2_pixmap = QPixmap(resource_path('images/scarlet_witch.jpg'))
         self.talent2_image.setPixmap(self.talent2_pixmap)
         print(f"talent_class={talent_class}, roll={roll}")
@@ -2709,7 +2881,7 @@ class MainWindow(QMainWindow):
             if roll < 3:
                 self.select_talent_listbox.addItem("Trance")
             elif roll < 6:
-                self.select_talent_listbox.addItem("Mesmirsm and Hypnosis")
+                self.select_talent_listbox.addItem("Mesmerism and Hypnosis")
             elif roll < 8:
                 self.select_talent_listbox.addItem("Sleight of Hand")
             elif roll < 10:
@@ -2740,7 +2912,7 @@ class MainWindow(QMainWindow):
     def select_talent_selected(self, selected_talent):
         #confirm the user wants to add the Talent
         result = self.display_message(resource_path('images/question.jpg'), "Confirm Adding Talent", "Are you sure you want to add this Talent to the character?", "question", buttons=1)
-        if result == QMessageBox.Ok:
+        if result == QMessageBox.StandardButton.Ok:
             print("User clicked OK")
             #check if the talent selected exceeds the number of available talent slots
             min = self.number_of_talents["min"]
@@ -2762,6 +2934,8 @@ class MainWindow(QMainWindow):
                 talent_class = self.talent_classes_listbox.currentRow()
                 self.talent_classes_listbox.takeItem(talent_class)
                 self.select_talent_listbox.clear()
+                self.select_talent_listbox.setEnabled(False)
+                self.talents_listbox.setEnabled(True)
                 self.talents_listbox.addItem(selected_talent_text)
                 #calculate the new min talent slots and update the label
                 self.number_of_talents["min"] = cost
@@ -2771,14 +2945,16 @@ class MainWindow(QMainWindow):
                 if self.talent_classes_listbox.count() == 0:
                     if cost == max:
                         self.roll_talent_classes_button.setEnabled(False)
+                        self.talent_classes_listbox.setEnabled(False)
+                        self.select_talent_listbox.setEnabled(False)
                         self.buy_talent_button.setEnabled(False)
                         self.remove_talent_button.setEnabled(False)
-                        self.roll_contact_classes_button.setEnabled(True)
-                        self.roll_contact_classes_button.setFocus()
                     else:
-                        self.roll_contact_classes_button.setEnabled(True)
-
-                    self.roll_talent_button.setEnabled(False)                        
+                        self.talent_classes_listbox.setEnabled(False)
+                    self.roll_talent_button.setEnabled(False)
+                    self.talents_listbox.setFocus()
+                    self.tab_widget.setTabEnabled(4, True)
+                    self.roll_contact_classes_button.setEnabled(True)
                     self.talent2_pixmap = QPixmap(resource_path('images/beast.jpg'))
                     self.talent2_image.setPixmap(self.talent2_pixmap)
                     self.contact_pixmap = QPixmap(resource_path('images/wolverine.jpg'))
@@ -2787,7 +2963,7 @@ class MainWindow(QMainWindow):
                     self.talent_classes_listbox.setFocus()
                     self.talent2_pixmap = QPixmap(resource_path('images/falcon.jpg'))
                     self.talent2_image.setPixmap(self.talent2_pixmap)
-        elif result == QMessageBox.Cancel:
+        elif result == QMessageBox.StandardButton.Cancel:
             print("User clicked Cancel")
 
 
@@ -2796,7 +2972,7 @@ class MainWindow(QMainWindow):
     def talent_list_selected(self, talent_item):
         #confirm removal of selected Talent
         result = self.display_message(resource_path('images/question.jpg'), "Confirm Removing Talent", "Are you sure you want to remove this talent?", "question", buttons=1)
-        if result == QMessageBox.Ok:
+        if result == QMessageBox.StandardButton.Ok:
             print("User clicked OK")
             #refund a power slot depending on how much the power cost (if it has a *)
             min = self.number_of_talents["min"]
@@ -2812,7 +2988,7 @@ class MainWindow(QMainWindow):
             self.num_talents_label.setText(f"Min: {min} / Max: {max}")
             talent = self.talents_listbox.currentRow()
             self.talents_listbox.takeItem(talent)
-        elif result == QMessageBox.Cancel:
+        elif result == QMessageBox.StandardButton.Cancel:
             print("User clicked Cancel")
 
         
@@ -2821,8 +2997,11 @@ class MainWindow(QMainWindow):
     def roll_contact_classes(self):
         print("Rolling Contact Classes...")
         print(f"resource_rank={self.resources_rank}")
+        print(f"initial contacts: {self.initial_contacts}")
         self.contacts_classes_listbox.clear()
+        self.contacts_classes_listbox.setEnabled(True)
         self.select_contact_listbox.clear()
+        self.select_contact_listbox.setEnabled(False)
         self.roll_talent_classes_button.setEnabled(False)
         self.buy_talent_button.setEnabled(False)
         self.remove_talent_button.setEnabled(False)
@@ -2837,7 +3016,9 @@ class MainWindow(QMainWindow):
             item = self.contacts_listbox.item(index)
             text = item.text()
             self.contacts_listbox.clear()
-            self.contacts_listbox.addItem(text)
+            item = QListWidgetItem(text)
+            item.setSizeHint(QSize(0, 22))
+            self.contacts_listbox.addItem(item)
         else:
             self.contacts_listbox.clear()
 
@@ -2867,7 +3048,6 @@ class MainWindow(QMainWindow):
             self.contact_image.setPixmap(self.contact_pixmap)
         else:
             self.contacts_classes_listbox.setEnabled(True)
-            self.contacts_classes_listbox.setFocus()
             self.contact_pixmap = QPixmap(resource_path('images/daredevil.jpg'))
             self.contact_image.setPixmap(self.contact_pixmap)
         #enable buy button
@@ -2906,7 +3086,7 @@ class MainWindow(QMainWindow):
         print(f"self.contact_bought={self.contact_bought}")
         if self.initial_contacts > 0:
             item = self.contacts_listbox.item(0)
-            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
         print(f"Number of contacts - min={min} / max={max}")
         self.num_contacts_label.setText(f"Min: {min} / Max: {max}")
 
@@ -2914,6 +3094,7 @@ class MainWindow(QMainWindow):
 
     def contact_class_list_selected(self, item):
         self.select_contact_listbox.clear()
+        self.select_contact_listbox.setEnabled(True)
         self.select_contact_listbox.setFocus()
         contact_class = item.text()
         if contact_class == "Professional":
@@ -2934,26 +3115,38 @@ class MainWindow(QMainWindow):
     def select_contact_list_selected(self, selected_contact):
         #confirm the user wants to add the Contact
         result = self.display_message(resource_path('images/question.jpg'), "Confirm Adding Contact", "Are you sure you want to add this Contact to the character?", "question", buttons=1)
-        if result == QMessageBox.Ok:
+        if result == QMessageBox.StandardButton.Ok:
             print("User clicked OK")
             #check if the talent selected exceeds the number of available talent slots
             min = self.number_of_contacts["min"]
             max = self.number_of_contacts["max"]
             print(f"contact min={min}/max={max}")
             selected_contact_text = selected_contact.text()
-            self.contacts_listbox.addItem(selected_contact_text)
+            item = QListWidgetItem(selected_contact_text)
+            item.setSizeHint(QSize(0, 22))
+            self.contacts_listbox.addItem(item)
             current_num_contacts = self.contacts_listbox.count()
+            print(f"initial contacts: {self.initial_contacts}")
             #if min contacts have been reached, user must buy more contacts up to the max
-            if current_num_contacts == min:
+            if current_num_contacts == max:
                 self.contacts_classes_listbox.setEnabled(False)
-                self.select_contact_listbox.clear()
+                self.roll_contact_classes_button.setEnabled(False)
+                self.buy_contact_button.setEnabled(False)
+                self.save_button.setFocus()
                 self.contact2_pixmap = QPixmap(resource_path('images/uatu.jpg'))
                 self.contact2_image.setPixmap(self.contact2_pixmap)
                 self.contact_pixmap = QPixmap("")
                 self.contact_image.setPixmap(self.contact_pixmap)
-            elif current_num_contacts == max:
-                self.contacts_classes_listbox.setEnabled(False)
-                self.buy_contact_button.setEnabled(False)
+            elif current_num_contacts == min:
+                if self.initial_contacts >= 0 and self.initial_contacts < 2:
+                    self.contacts_classes_listbox.setEnabled(False)
+                    self.roll_contact_classes_button.setEnabled(False)
+                    self.buy_contact_button.setEnabled(False)
+                    self.contacts_listbox
+                    self.save_button.setFocus()
+                else:
+                    self.contacts_classes_listbox.setEnabled(False)
+                    self.save_button.setFocus()
                 self.contact2_pixmap = QPixmap(resource_path('images/uatu.jpg'))
                 self.contact2_image.setPixmap(self.contact2_pixmap)
                 self.contact_pixmap = QPixmap("")
@@ -2962,16 +3155,19 @@ class MainWindow(QMainWindow):
                 self.contacts_classes_listbox.setFocus()
                 self.contact_pixmap = QPixmap(resource_path('images/dr_strange.jpg'))
                 self.contact_image.setPixmap(self.contact_pixmap)
-        elif result == QMessageBox.Cancel:
+            self.select_contact_listbox.clear()
+            self.select_contact_listbox.setEnabled(False)
+
+        elif result == QMessageBox.StandardButton.Cancel:
             print("User clicked Cancel")
 
 
 
     def contact_list_selected(self, selected_contact):
         #confirm removal of selected Talent
-        if selected_contact.flags() & Qt.ItemIsEnabled:
+        if selected_contact.flags() & Qt.ItemFlag.ItemIsEnabled:
             result = self.display_message(resource_path('images/question.jpg'), "Confirm Removing Contact", "Are you sure you want to remove this contact", "question", buttons=1)
-            if result == QMessageBox.Ok:
+            if result == QMessageBox.StandardButton.Ok:
                 print("User clicked OK")
                 #refund a contact slot
                 min = self.number_of_contacts["min"]
@@ -2984,7 +3180,7 @@ class MainWindow(QMainWindow):
                 self.num_contacts_label.setText(f"Min: {min} / Max: {max}")
                 contact = self.contacts_listbox.currentRow()
                 self.contacts_listbox.takeItem(contact)
-            elif result == QMessageBox.Cancel:
+            elif result == QMessageBox.StandardButton.Cancel:
                 print("User clicked Cancel")
 
 
@@ -3037,17 +3233,7 @@ class MainWindow(QMainWindow):
 
     def save_button_clicked(self):
         print(f"Saving File!")
-        #file_path, _ = QFileDialog.getSaveFileName(self, "Save to File", "", "Text Files (*.txt);;All Files (*)")
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-
-        file_path, _ = QFileDialog.getSaveFileName(
-            self,
-            "Save to File",
-            "",
-            "Text Files (*.txt);;All Files (*)",
-            options=options
-        )
+        file_path, _ = QFileDialog.getSaveFileName(self, "Save to File", "", "Text Files (*.txt);;All Files (*)")
         if file_path:
             #determine which radion button is checked
             if self.secret_radio.isChecked():
@@ -3064,8 +3250,11 @@ class MainWindow(QMainWindow):
             physical_form = self.physical_form_list.currentItem()
             physical_form_name = physical_form.text()
             print(f"physical_form_name={physical_form_name}")
-            if physical_form_name == "Compound":
-                physical_form_name = "Compound Form: "
+            if physical_form_name == "Compound" or physical_form_name == "Changeling":
+                if physical_form_name == "Compound":
+                    physical_form_name = "Compound Form: "
+                else:
+                    physical_form_name = "Changeling Form: "
                 num = self.compound_forms
                 for index in reversed(range(num)):
                     form = self.compound_form_list[index]
@@ -3109,7 +3298,6 @@ class MainWindow(QMainWindow):
                     if notes.startswith(exclude_text):
                         notes = notes[len(exclude_text):].lstrip()
                     file.write(f"Notes: {notes}\n\n\n")
-                    #file.write(f"Notes: {self.notes_textbox.toPlainText()}\n\n\n")
                     file.write(f"ATTRIBUTES:\n")
                     for ability in self.ability_inputs:
                         rank_textbox = self.ability_inputs[ability]["rank"]
@@ -3126,15 +3314,15 @@ class MainWindow(QMainWindow):
                             score = score_textbox.text()
                             file.write(f"{ability.capitalize()}: {rank} ({score})     ")
                     file.write(f"\n\n\nPOWERS:\n")
-                    for power in self.powers_listbox.findItems("", Qt.MatchContains):
+                    for power in self.powers_listbox.findItems("", Qt.MatchFlag.MatchContains):
                         text = power.text()
                         file.write(f"{text}\n")
                     file.write(f"\n\nTALENTS:\n")
-                    for talent in self.talents_listbox.findItems("", Qt.MatchContains):
+                    for talent in self.talents_listbox.findItems("", Qt.MatchFlag.MatchContains):
                         text = talent.text()
                         file.write(f"{text}\n")
                     file.write(f"\n\nCONTACTS:\n")
-                    for contact in self.contacts_listbox.findItems("", Qt.MatchContains):
+                    for contact in self.contacts_listbox.findItems("", Qt.MatchFlag.MatchContains):
                         text = contact.text()
                         file.write(f"{text}\n")
 
@@ -3146,7 +3334,7 @@ class MainWindow(QMainWindow):
 
     def exit_button_clicked(self):
         result = self.display_message(resource_path('images/question.jpg'), "Confirm Exit", "Are you sure you want to exit?", "question", buttons=1)
-        if result == QMessageBox.Ok:
+        if result == QMessageBox.StandardButton.Ok:
             QApplication.instance().quit()
 
 
@@ -3330,7 +3518,7 @@ class MainWindow(QMainWindow):
             rank_name = rank_textbox.text()
             inputs["score"].setText(str(self.rank_scores[rank_name][index]))
         #update the power list
-        for power in self.powers_listbox.findItems("", Qt.MatchContains):
+        for power in self.powers_listbox.findItems("", Qt.MatchFlag.MatchContains):
             #split words in the power(power - power rank (score))
             text = power.text()
             words = text.split(" ")
@@ -3401,7 +3589,7 @@ class MainWindow(QMainWindow):
             if self.pf_popularity_rank > -1:
                 print(f"pf_popularity_rank>-1")
                 if ability == "popularity":
-                    print(f"ability=resources")
+                    print(f"ability=popularity")
                     rankindex = self.pf_popularity_rank
                     self.popularity_rank = self.pf_popularity_rank
             else: #set the resource or popularity rank attribute to the rolled one
@@ -3463,6 +3651,7 @@ class MainWindow(QMainWindow):
                 self.number_of_powers["min"] = 1
             else:
                 self.number_of_powers["min"] += self.power_bonus
+                self.number_of_powers["max"] += self.power_bonus
         elif type == "contacts":
             if self.initial_contacts == 0: #0 initial contants
                 self.number_of_contacts["min"] = 0
@@ -3542,11 +3731,11 @@ class MainWindow(QMainWindow):
         elif roll < 74:
             epoint = "Feet"
         elif roll < 77:
+            #check if the extra body part exists and use an existing one if not
             row = self.physical_form_list.currentRow()
             if self.wings_travel_power == 1 or row == 16:
                 epoint = "Wings"
             else:
-                print("Wings energy emission point found.")
                 epoint = "Hands"
         elif roll < 82:
             item = self.options_list.currentItem()
@@ -3555,14 +3744,12 @@ class MainWindow(QMainWindow):
             elif item and item.text() == "Horns give +1CS to Charging attacks":
                 epoint = "Horns"
             else:
-                print("Antennae/horns energy emission point found.")
                 epoint = "Eyes"
         elif roll < 87:
             item = self.options_list.currentItem()
             if item and item.text() == "Tails give the hero +1 attack":
                 epoint = "Tail"
             else:
-                print("Tail energy emission point found.")
                 epoint = "Torso"
         elif roll <= 100:
             epoint = "Any location"
@@ -3574,17 +3761,19 @@ class MainWindow(QMainWindow):
         roll = randint(1,100)
         print(f"Roll Talent Classes roll={roll}")
         if roll < 21:
-            self.talent_classes_listbox.addItem("Weapon Skills")
+            item = QListWidgetItem("Weapon Skills")
         elif roll < 46:
-            self.talent_classes_listbox.addItem("Fighting Skills")
+            item = QListWidgetItem("Fighting Skills")
         elif roll < 66:
-            self.talent_classes_listbox.addItem("Professional Skills")
+            item = QListWidgetItem("Professional Skills")
         elif roll < 86:
-            self.talent_classes_listbox.addItem("Scientific Skills")
+            item = QListWidgetItem("Scientific Skills")
         elif roll < 91:
-            self.talent_classes_listbox.addItem("Mystical and Mental Skills")
+            item = QListWidgetItem("Mystical and Mental Skills")
         elif roll <= 100:
-            self.talent_classes_listbox.addItem("Other Skills")
+            item = QListWidgetItem("Other Skills")
+        item.setSizeHint(QSize(0, 22))
+        self.talent_classes_listbox.addItem(item)
 
 
 
@@ -3596,14 +3785,14 @@ class MainWindow(QMainWindow):
         msg.setWindowTitle(title)
         msg.setText(text)
         if type == "warning":
-            msg.setIcon(QMessageBox.Warning)
+            msg.setIcon(QMessageBox.Icon.Warning)
         else:
-            msg.setIcon(QMessageBox.Question)
+            msg.setIcon(QMessageBox.Icon.Question)
         if buttons:
-            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            return msg.exec_()
+            msg.setStandardButtons(QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            return msg.exec()
         else:
-            msg.exec_()
+            msg.exec()
 
 
 
@@ -3643,7 +3832,7 @@ class MainWindow(QMainWindow):
         instructions_dialog.setWindowIcon(QIcon(resource_path('images/mshJudge.jpg')))
         instructions_dialog.setWindowTitle("Instructions")
         instructions_dialog.resize(700, 800)
-        instructions_label = QLabel("""MSH Character Generator 		.v 2.1.00			By TaskmasterX
+        instructions_label = QLabel("""MSH Character Generator 		.v 2.5.00			By TaskmasterX
 
 
 The MSH Character Generator, or MSHCG for short, is designed to allow players of the classic Marvel Superheroes RPG by TSR to create new characters as quickly as possible using virtually the same method as described in the Ultimate Powers Book and Players Handbook of the RPGs. This program is not meant to replace the UPB, rather it is meant to be used with the UPB. You still need the rulebooks and UPB for the Power descriptions and other useful information that is not provided by this program. The rulebooks and UPB can be found on the internet with a Google search. Also, this is not meant to completely generate a new character. This program essentially provides a quick and easy way to create the foundation, or structure, for the character that you then flesh-out after the character sheet has been saved.
@@ -3719,7 +3908,7 @@ taskmasterxff@yahoo.com
         layout = QVBoxLayout()
         layout.addWidget(scroll_area)
         instructions_dialog.setLayout(layout)
-        instructions_dialog.exec_()
+        instructions_dialog.exec()
 
 
 
@@ -3734,7 +3923,7 @@ taskmasterxff@yahoo.com
         pixmap = QPixmap(resource_path('images/mshPlayer.jpg'))
         about_image = QLabel()
         about_image.setPixmap(pixmap)
-        about_image.setAlignment(Qt.AlignLeft)
+        about_image.setAlignment(Qt.AlignmentFlag.AlignLeft)
         about_image.setFixedSize(200, 300)
         about_image.setScaledContents(True)
 
@@ -3744,7 +3933,7 @@ taskmasterxff@yahoo.com
         title_label.setStyleSheet("color: black; font-size: 12px; background-color: rgba(0, 0, 0, 0);")
 
         # Version and copyright label
-        version_label = QLabel("Version 2.1.00\n\nCopyright © 2021-2026")
+        version_label = QLabel("Version 2.5.00\n\nCopyright © 2021-2026")
         version_label.setFont(QFont('Arial', 12))
         version_label.setStyleSheet("color: black; font-size: 12px; background-color: rgba(0, 0, 0, 0);")
 
@@ -3777,14 +3966,14 @@ taskmasterxff@yahoo.com
         info_layout.addWidget(version_label)
         info_layout.addWidget(author_label)
         info_layout.addWidget(info_label)
-        info_layout.addWidget(ok_button, alignment=Qt.AlignRight)
+        info_layout.addWidget(ok_button, alignment=Qt.AlignmentFlag.AlignRight)
 
         layout.addWidget(about_image)
         layout.addLayout(info_layout)
         about_dialog.setLayout(layout)
 
         # Show as a modal dialog
-        about_dialog.exec_()
+        about_dialog.exec()
 
 
 
@@ -3826,18 +4015,18 @@ def show_splash():
     # Create QLabel for splash screen
     splash = QLabel()
     splash.setPixmap(pixmap)
-    splash.setAlignment(Qt.AlignLeft)
-    splash.setWindowFlag(Qt.FramelessWindowHint)
+    splash.setAlignment(Qt.AlignmentFlag.AlignLeft)
+    splash.setWindowFlag(Qt.WindowType.FramelessWindowHint)
     splash.resize(500, 270)
 
     # Add text labels
     title_label = QLabel("MSH Character Generator", splash)
-    title_label.setAlignment(Qt.AlignCenter)
+    title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
     title_label.setGeometry(213, 50, 283, 100)
     title_label.setStyleSheet("color: black; font-size: 24px; background-color: rgba(0, 0, 0, 0);")
     title_label.setFont(QFont('Gil Sans', 20))
-    version_label = QLabel("Version 2.1.00\n\nCopyright ©  2021-2026", splash)
-    version_label.setAlignment(Qt.AlignCenter)
+    version_label = QLabel("Version 2.5.00\n\nCopyright ©  2021-2026", splash)
+    version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
     version_label.setGeometry(213, 150, 283, 100)
     version_label.setStyleSheet("color: black; font-size: 12px; background-color: rgba(0, 0, 0, 0);")
     version_label.setFont(QFont('Arial', 20))
@@ -3848,7 +4037,7 @@ def show_splash():
     # Close splash and open main window after 3 seconds
     QTimer.singleShot(3000, lambda: (splash.close(), show_main_window()))
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 
