@@ -32,7 +32,7 @@ exe = EXE(
     a.datas,
     [],
     name='MSH-Character-Generator',
-    icon='images/upm.ico' if sys.platform == 'win32' else None,
+    icon='images/UPB_icon.ico' if sys.platform == 'win32' else None,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -46,13 +46,4 @@ if sys.platform == "darwin":
         name='MSH-Character-Generator.app',
         icon='images/UPB_sm.icns',
         bundle_identifier='com.taskmasterx.mshcharactergenerator',
-    )
-else:
-    coll = COLLECT(
-        exe,
-        a.binaries,
-        a.datas,
-        strip=False,
-        upx=True,
-        name='MSH-Character-Generator',
     )
