@@ -4,6 +4,7 @@ import sys
 from random import randint
 from functools import partial
 from bisect import bisect
+from tkinter.font import families
 
 from PyQt6.QtWidgets import (QApplication, QListWidgetItem, QMainWindow, QWidget, 
                              QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, 
@@ -11,7 +12,7 @@ from PyQt6.QtWidgets import (QApplication, QListWidgetItem, QMainWindow, QWidget
                              QTabWidget, QComboBox, QListWidget, QGroupBox, 
                              QAbstractItemView, QMessageBox, QFileDialog, 
                              QDialog, QScrollArea)
-from PyQt6.QtGui import QIcon, QFont, QPixmap, QAction
+from PyQt6.QtGui import QIcon, QFont, QPixmap, QAction, QFontDatabase
 from PyQt6.QtCore import Qt, QTimer, QSize
 
 import powerlists
@@ -27,6 +28,14 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Marvel Super Heroes Character Generator")
         self.setFixedSize(1100, 820)
         self.setWindowIcon(QIcon(resource_path('images/UPB_sm.jpg')))
+
+        font_id = QFontDatabase.addApplicationFont(
+        resource_path("fonts/comic.ttf")
+        )
+
+        families = QFontDatabase.applicationFontFamilies(font_id)
+
+        print(families)
 
         #create the menu bar
         menu = self.menuBar()
