@@ -3334,7 +3334,7 @@ class MainWindow(QMainWindow):
                     file.write(f"NAME: {self.name_textbox.text()}\n")
                     file.write(f"IDENTITY: {self.identity_textbox.text()}   {secret}{public}\n")
                     file.write(f"SEX: {self.sex_combobox.currentText()}     AGE: {self.age_textbox.text()}\n")
-                    file.write(f"GROUP AFFILIATION: {self.group_textbox.text()}     BASE OF OPERATOINS: {self.base_textbox.text()}\n\n")
+                    file.write(f"GROUP AFFILIATION: {self.group_textbox.text()}     BASE OF OPERATIONS: {self.base_textbox.text()}\n\n")
                     file.write(f"PHYSICAL FORM: {physical_form_name}\nORIGIN OF POWER: {self.origin_textbox.text()}\n")
                     file.write(f"Bonuses: {self.bonuses_textbox.toPlainText()}\n")
                     file.write(f"Penalties: {self.penalties_textbox.toPlainText()}\n")
