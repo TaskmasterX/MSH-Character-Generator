@@ -2450,6 +2450,15 @@ class MainWindow(QMainWindow):
                 self.display_message(resource_path('images/oops.jpg'), "Not Enough Power Slots!", "You do not have enough Power slots to add this power!", "warning", buttons=0)
 
             else:#roll the power ranks and add them to the Powers List and update the min/max
+                #first check if the power is Magical Power Simulation and if so randomly determine the simulated power class and add it to the Power Class list
+                if power == "Power Simulation":
+                    power_class = self.roll_power_class()
+                    item = QListWidgetItem(power_class)
+                    item.setSizeHint(QSize(0, 22))
+                    self.power_classes_listbox.addItem(item)
+                    self.power_textbox.clear()
+                    self.power_classes_listbox.takeItem(self.power_classes_listbox.row(power_class_item))
+                    return
                 #roll the rank for the main power and display it in the Powers list
                 self.powers_listbox.setEnabled(True)
                 roll = randint(1,100)
@@ -2486,8 +2495,6 @@ class MainWindow(QMainWindow):
                     if power_class == "Energy Emission":
                         epoint = self.energy_emission_body_part()
                         item = QListWidgetItem(f"{power} - {rank} ({score}); emitted from {epoint}")
-                        item.setSizeHint(QSize(0, 22))
-                        self.powers_listbox.addItem(item)
                     elif power == "Biophysical Control*":#show the option window
                         dialog = BiophysicalOptionDialog(self)
                         if dialog.exec():#get the user's selected option
@@ -2496,12 +2503,29 @@ class MainWindow(QMainWindow):
                                 selected_option = self.biophysical_random_option()
                             if selected_option:
                                 item = QListWidgetItem(f"{power} ({selected_option}) - {rank} ({score})")
-                                item.setSizeHint(QSize(0, 22))
-                                self.powers_listbox.addItem(item)
+                    elif power == "Growth":
+                        roll = randint(1,100)
+                        if roll <=25:
+                            growth_type = "Atomic Dispersal"
+                        elif roll <= 75:
+                            growth_type = "Atomic Gain"
+                        else:
+                            growth_type = "Atomic Growth"
+                        item = QListWidgetItem(f"{power} - {rank} ({score}); growth type: {growth_type}")
+                    elif power == "Shrinking":
+                        roll = randint(1,100)
+                        if roll <=20:
+                            shrink_type = "Atomic Collapse"
+                        elif roll <= 40:
+                            shrink_type = "Atomic Reduction"
+                        else:
+                            shrink_type = "Atomic Shrinkage"
+                        item = QListWidgetItem(f"{power} - {rank} ({score}); shrink type: {shrink_type}")
                     else:
                         item = QListWidgetItem(f"{power} - {rank} ({score})")
-                        item.setSizeHint(QSize(0, 22))
-                        self.powers_listbox.addItem(item)
+
+                    item.setSizeHint(QSize(0, 22))
+                    self.powers_listbox.addItem(item)
 
                 #roll the power ranks for the bonus powers
                 for bonus_power in bonus_powers_selected:

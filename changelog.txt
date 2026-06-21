@@ -12,6 +12,8 @@ v2.5 changes from 2.0:
 	-Fix Humanoid Race not starting with Poor Resources
 	-Fix Energy Emission Bonus Power not added to Powers List when rolling Powers for Energy Beings
 	-Fix some Optional Forms attributes not being applied for Compound or Changeling forms
+	-Update Magical Power Simulation to add Power Class to the Power Class List to determine the magical-based power
+	-Update Growth and Shrinking to add randomly determine the type when adding the power
 	-Added Energy Control as Optional Power for Energy Beings (Energy Control is now automatically included when rolling the Power Classes for Energy Beings)
 	-Update Energy Physical Form Notes
 	-Update the way focus on buttons work and added keyboard shortcuts for tabs
