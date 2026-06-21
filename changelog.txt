@@ -1,6 +1,7 @@
 v2.5 changes from 2.0:
 	-Migrated GUI to PyQt6
 	-Integrated GitHub Actions to create cross-platform builds for Windows, Mac and Linux
+	-Updated buttons and tables in GUI
 	-Add Antennae and Horns to the Physical Form Options for Modified Human-Extra Parts; Antenna give a detection power and horns +1CS to Charging attacks
 	-Added check if body part exists (wings, antenna, horns and tails) for emission points of Energy Emission powers and use an alternate (hands, eyes, torso) emission point if not
 	-Fix issue selecting the use Standard Rank Scores option that crashes the app if Abilities have not been rolled yet.
