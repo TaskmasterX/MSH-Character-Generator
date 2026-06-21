@@ -4,7 +4,6 @@ import sys
 from random import randint
 from functools import partial
 from bisect import bisect
-from tkinter.font import families
 
 from PyQt6.QtWidgets import (QApplication, QListWidgetItem, QMainWindow, QWidget, 
                              QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, 
@@ -32,10 +31,6 @@ class MainWindow(QMainWindow):
         font_id = QFontDatabase.addApplicationFont(
         resource_path("fonts/comic.ttf")
         )
-
-        families = QFontDatabase.applicationFontFamilies(font_id)
-
-        print(families)
 
         #create the menu bar
         menu = self.menuBar()
@@ -105,8 +100,12 @@ class MainWindow(QMainWindow):
         self.tab_widget.currentChanged.connect(self.tab_changed)
 
         #Create the save and exit buttons
-        self.save_button = QPushButton("💾 Save", self)
-        self.exit_button = QPushButton("🟥 Exit", self)
+        self.save_button = QPushButton("  Save", self)
+        self.save_button.setIcon(QIcon(resource_path("images/save.png")))
+        self.save_button.setIconSize(QSize(24, 24))
+        self.exit_button = QPushButton("  Exit", self)
+        self.exit_button.setIcon(QIcon(resource_path("images/exit.png")))
+        self.exit_button.setIconSize(QSize(24, 24))
         self.save_button.setFixedSize(150,50)
         self.exit_button.setFixedSize(150,50)
         self.save_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -214,12 +213,18 @@ class MainWindow(QMainWindow):
             QWidget{
                 font-family: "Comic Sans MS";
             }
+            QGroupBox {
+                border: 2px solid #111;
+                border-radius: 8px;
+                margin-top: 10px;
+                padding: 5px;
+            }
             QLabel, QTabWidget{
                 font-size: 16px;
             }
             QPushButton{
                 font-size: 18px;
-            }
+            }               
             QPushButton:focus {
                 border: 2px solid #0078d4;
                 background-color: #e6f7ff;
@@ -230,7 +235,7 @@ class MainWindow(QMainWindow):
             QLineEdit, QTextEdit, QListWidget{
                 font-size: 14px;
                 border: 2px inset gray;
-            }
+            }                          
             QListWidget:focus {
                 border: 2px solid #0078d4;
                 background-color: #e6f7ff;
@@ -253,6 +258,7 @@ class MainWindow(QMainWindow):
         pf_notes_layout = QVBoxLayout()
         pf_list_layout = QVBoxLayout()
         pf_origin_layout = QVBoxLayout()
+        pf_button_layout = QHBoxLayout()
         pf_bonuses_penalties_layout = QGridLayout()
 
 
@@ -280,8 +286,11 @@ class MainWindow(QMainWindow):
         #add the random button and origin boxes to the second column
         origin_spacer = QLabel("")
         origin_spacer.setFixedSize(120,25)
-        self.random_pf_button = QPushButton("< Random 🎲", self)
-        self.random_pf_button.setFixedSize(120,40)
+        self.random_pf_button = QPushButton("< Random ", self)
+        self.random_pf_button.setIcon(QIcon(resource_path("images/dice.png")))
+        self.random_pf_button.setIconSize(QSize(28, 28))
+        self.random_pf_button.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+        self.random_pf_button.setFixedSize(125,45)
         origin_label = QLabel("Origin of Power:")
         origin_label.setAlignment(Qt.AlignmentFlag.AlignBottom)
         self.origin_textbox = QLineEdit()
@@ -312,7 +321,10 @@ class MainWindow(QMainWindow):
 
         #add the widgets to the origin of power column
         pf_origin_layout.addWidget(origin_spacer)
-        pf_origin_layout.addWidget(self.random_pf_button)
+        pf_button_layout.addWidget(self.random_pf_button)
+        pf_button_layout.addStretch()
+        #pf_origin_layout.addWidget(self.random_pf_button)
+        pf_origin_layout.addLayout(pf_button_layout)
         pf_origin_layout.addWidget(origin_label)
         pf_origin_layout.addWidget(self.origin_textbox)
         pf_origin_layout.addWidget(options_label)
@@ -411,7 +423,7 @@ class MainWindow(QMainWindow):
         table_rank_label = QLabel("Rank")
         table_rank_label.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         table_bonus_penalty_label = QLabel("Bonus /\nPenalty")
-        table_bonus_penalty_label.setStyleSheet("font-size: 14px;")
+        table_bonus_penalty_label.setStyleSheet("font-size: 12px;")
         table_bonus_penalty_label.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         table_group_layout.addWidget(table_roll_label, 0, 0)
         table_group_layout.addWidget(table_rank_label, 0, 1)
@@ -423,8 +435,10 @@ class MainWindow(QMainWindow):
         self.ironman_image = QLabel()
         self.ironman_pixmap = QPixmap("")
         self.ironman_image.setFixedSize(350,140)
-        self.abilities_button = QPushButton("🎲 Roll Abilities\nv")
-        self.abilities_button.setFixedSize(160,60)
+        self.abilities_button = QPushButton("  Roll Abilities\n         v")
+        self.abilities_button.setIcon(QIcon(resource_path("images/dice.png")))
+        self.abilities_button.setIconSize(QSize(42, 42))
+        self.abilities_button.setFixedSize(180,60)
         self.abilities_button.setEnabled(False)
 
         #configure click signal for the Roll Abilities button
@@ -438,7 +452,7 @@ class MainWindow(QMainWindow):
         abilities_rank_label = QLabel("Rank")
         abilities_rank_label.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         abilities_rank_number_label = QLabel("Rank\nNumber")
-        abilities_rank_number_label.setStyleSheet("font-size: 14px;")
+        abilities_rank_number_label.setStyleSheet("font-size: 12px;")
         abilities_rank_number_label.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         abilities_group_layout.addWidget(abilities_rank_label,0,1)
         abilities_group_layout.addWidget(abilities_rank_number_label,0,2)
@@ -656,8 +670,10 @@ class MainWindow(QMainWindow):
         powers_tab_layout = QGridLayout()
         buy_remove_powers_layout = QHBoxLayout()
 
-        self.roll_power_classes_button = QPushButton("🎲 Roll Power Classes\nv")
-        self.roll_power_classes_button.setFixedSize(200,60)
+        self.roll_power_classes_button = QPushButton(" Roll Power Classes\n           v")
+        self.roll_power_classes_button.setIcon(QIcon(resource_path("images/dice.png")))
+        self.roll_power_classes_button.setIconSize(QSize(42, 42))
+        self.roll_power_classes_button.setFixedSize(220,60)
         self.roll_power_classes_button.setEnabled(False)
         #configure click signal for the Roll Power Classes button
         self.roll_power_classes_button.clicked.connect(self.roll_power_classes)
@@ -668,12 +684,16 @@ class MainWindow(QMainWindow):
         self.power_classes_listbox.itemClicked.connect(self.power_classes_list_selected)
         self.power_classes_listbox.itemActivated.connect(self.power_classes_list_selected)
 
-        self.buy_power_button = QPushButton("💲 Buy Power")
+        self.buy_power_button = QPushButton(" Buy Power")
+        self.buy_power_button.setIcon(QIcon(resource_path("images/buy.png")))
+        self.buy_power_button.setIconSize(QSize(20, 20))
         self.buy_power_button.setFixedSize(120,30)
         self.buy_power_button.setStyleSheet("font-size: 14px;")
         self.buy_power_button.setToolTip('-2CS Resources per Power')
         self.buy_power_button.setEnabled(False)
-        self.remove_power_button = QPushButton("❌ Remove Power")
+        self.remove_power_button = QPushButton(" Remove Power")
+        self.remove_power_button.setIcon(QIcon(resource_path("images/remove.png")))
+        self.remove_power_button.setIconSize(QSize(20, 20))
         self.remove_power_button.setFixedSize(130,30)
         self.remove_power_button.setStyleSheet("font-size: 14px;")
         self.remove_power_button.setEnabled(False)
@@ -688,7 +708,9 @@ class MainWindow(QMainWindow):
         self.villain_pixmap = QPixmap("")
         self.villain_image.setFixedSize(350,200)
         
-        self.roll_power_button = QPushButton("🎲 Roll Power\nv")
+        self.roll_power_button = QPushButton(" Roll Power\n      v")
+        self.roll_power_button.setIcon(QIcon(resource_path("images/dice.png")))
+        self.roll_power_button.setIconSize(QSize(42, 42))
         self.roll_power_button.setFixedSize(170,60)
         self.roll_power_button.setEnabled(False)
         self.roll_power_button.clicked.connect(self.roll_power)
@@ -704,8 +726,10 @@ class MainWindow(QMainWindow):
         self.bonus_powers_listbox.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
         self.optional_powers_listbox.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
         
-        self.add_power_button = QPushButton("➕ Add Power(s)\nv")
-        self.add_power_button.setFixedSize(160,60)
+        self.add_power_button = QPushButton(" Add Power(s)\n      v")
+        self.add_power_button.setIcon(QIcon(resource_path("images/add.png")))
+        self.add_power_button.setIconSize(QSize(32, 32))
+        self.add_power_button.setFixedSize(170,60)
         self.add_power_button.setEnabled(False)
         self.add_power_button.clicked.connect(self.add_power)
         powers_label = QLabel("Powers:")
@@ -718,8 +742,10 @@ class MainWindow(QMainWindow):
         self.num_powers_label.setFixedSize(450,70)
         self.num_powers_label.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.num_powers_label.setContentsMargins(0, 10, 0, 0)
-        self.generate_weakness_button = QPushButton("🎲 Generate Weakness")
-        self.generate_weakness_button.setFixedSize(170,30)
+        self.generate_weakness_button = QPushButton("Generate Weakness")
+        self.generate_weakness_button.setIcon(QIcon(resource_path("images/dice.png")))
+        self.generate_weakness_button.setIconSize(QSize(26, 26))
+        self.generate_weakness_button.setFixedSize(170,40)
         self.generate_weakness_button.setStyleSheet("font-size: 14px;")
         self.generate_weakness_button.setEnabled(False)
         self.generate_weakness_button.clicked.connect(self.generate_weakness)
@@ -764,20 +790,26 @@ class MainWindow(QMainWindow):
         buy_remove_talents_layout = QHBoxLayout()
 
         #left column
-        self.roll_talent_classes_button = QPushButton("🎲 Roll Talent Classes\nv")
-        self.roll_talent_classes_button.setFixedSize(200,60)
+        self.roll_talent_classes_button = QPushButton(" Roll Talent Classes\n        v")
+        self.roll_talent_classes_button.setIcon(QIcon(resource_path("images/dice.png")))
+        self.roll_talent_classes_button.setIconSize(QSize(42, 42))
+        self.roll_talent_classes_button.setFixedSize(220,60)
         self.roll_talent_classes_button.setEnabled(False)
         self.roll_talent_classes_button.clicked.connect(self.roll_talent_classes)
         talent_classes_label = QLabel("Talent Classes:")
         self.talent_classes_listbox = QListWidget()
         self.talent_classes_listbox.setFixedSize(325,200)
         self.talent_classes_listbox.setEnabled(False)
-        self.buy_talent_button = QPushButton("💲 Buy Talent")
+        self.buy_talent_button = QPushButton(" Buy Talent")
+        self.buy_talent_button.setIcon(QIcon(resource_path("images/buy.png")))
+        self.buy_talent_button.setIconSize(QSize(20, 20))
         self.buy_talent_button.setFixedSize(120,30)
         self.buy_talent_button.setStyleSheet("font-size: 14px;")
         self.buy_talent_button.setEnabled(False)
         self.buy_talent_button.setToolTip('-1CS Resources per Talent')
-        self.remove_talent_button = QPushButton("❌ Remove Talent")
+        self.remove_talent_button = QPushButton(" Remove Talent")
+        self.remove_talent_button.setIcon(QIcon(resource_path("images/remove.png")))
+        self.remove_talent_button.setIconSize(QSize(20, 20))
         self.remove_talent_button.setFixedSize(130,30)
         self.remove_talent_button.setStyleSheet("font-size: 14px;")
         self.remove_talent_button.setEnabled(False)
@@ -787,7 +819,9 @@ class MainWindow(QMainWindow):
         self.remove_talent_button.clicked.connect(self.remove_talent)
 
         #middle column
-        self.roll_talent_button = QPushButton("🎲 Roll Talent\nv")
+        self.roll_talent_button = QPushButton(" Roll Talent\n     v")
+        self.roll_talent_button.setIcon(QIcon(resource_path("images/dice.png")))
+        self.roll_talent_button.setIconSize(QSize(42, 42))
         self.roll_talent_button.setFixedSize(170,60)
         self.roll_talent_button.setEnabled(False)
         self.roll_talent_button.clicked.connect(self.roll_talent)
@@ -857,7 +891,9 @@ class MainWindow(QMainWindow):
         contact_classes_label = QLabel("Contact Classes:")
         self.contacts_classes_listbox = QListWidget()
         self.contacts_classes_listbox.setFixedSize(325,150)
-        self.buy_contact_button = QPushButton("💲 Buy Contact")
+        self.buy_contact_button = QPushButton(" Buy Contact")
+        self.buy_contact_button.setIcon(QIcon(resource_path("images/buy.png")))
+        self.buy_contact_button.setIconSize(QSize(20, 20))
         self.buy_contact_button.setFixedSize(120,30)
         self.buy_contact_button.setStyleSheet("font-size: 14px;")
         self.buy_contact_button.setEnabled(False)
@@ -867,8 +903,10 @@ class MainWindow(QMainWindow):
         self.contacts_classes_listbox.itemActivated.connect(self.contact_class_list_selected)
 
         #Middle column
-        self.roll_contact_classes_button = QPushButton("🎲 Roll Contacts\nv")
-        self.roll_contact_classes_button.setFixedSize(160,60)
+        self.roll_contact_classes_button = QPushButton(" Roll Contacts\n     v")
+        self.roll_contact_classes_button.setIcon(QIcon(resource_path("images/dice.png")))
+        self.roll_contact_classes_button.setIconSize(QSize(42, 42))
+        self.roll_contact_classes_button.setFixedSize(180,60)
         self.roll_contact_classes_button.setEnabled(False)
         self.roll_contact_classes_button.clicked.connect(self.roll_contact_classes)
         select_contact_label = QLabel("Select Contact:")
@@ -4032,13 +4070,13 @@ def show_splash():
     title_label = QLabel("MSH Character Generator", splash)
     title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
     title_label.setGeometry(213, 50, 283, 100)
-    title_label.setStyleSheet("color: black; font-size: 24px; background-color: rgba(0, 0, 0, 0);")
-    title_label.setFont(QFont('Gil Sans', 20))
+    title_label.setStyleSheet("color: black; font-size: 22px; background-color: rgba(0, 0, 0, 0);")
+    title_label.setFont(QFont('Gil Sans',))
     version_label = QLabel("Version 2.5.00\n\nCopyright ©  2021-2026", splash)
     version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
     version_label.setGeometry(213, 150, 283, 100)
     version_label.setStyleSheet("color: black; font-size: 12px; background-color: rgba(0, 0, 0, 0);")
-    version_label.setFont(QFont('Arial', 20))
+    version_label.setFont(QFont('Arial'))
 
     # Show splash screen
     splash.show()
