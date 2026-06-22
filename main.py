@@ -1,5 +1,6 @@
 import os
 import sys
+import platform
 
 from random import randint
 from functools import partial
@@ -25,7 +26,10 @@ class MainWindow(QMainWindow):
 
         #Setup parameters of the main window
         self.setWindowTitle("Marvel Super Heroes Character Generator")
-        self.setFixedSize(1100, 820)
+        if platform.system() == "Darwin":
+            self.setFixedSize(1180, 860)
+        else:
+            self.setFixedSize(1100, 820)
         self.setWindowIcon(QIcon(resource_path('images/UPB_sm.jpg')))
 
         font_id = QFontDatabase.addApplicationFont(
@@ -211,6 +215,8 @@ class MainWindow(QMainWindow):
         #apply a style sheet
         self.setStyleSheet("""
             QWidget{
+                background-color: #ffffff;
+                color: black;
                 font-family: "Comic Sans MS";
             }
             QGroupBox {
@@ -220,29 +226,33 @@ class MainWindow(QMainWindow):
                 padding: 5px;
             }
             QLabel, QTabWidget{
-                font-size: 16px;
+                font-size: 12pt;
             }
             QPushButton{
-                font-size: 18px;
+                font-size: 14pt;
             }               
             QPushButton:focus {
                 border: 2px solid #0078d4;
                 background-color: #e6f7ff;
             }
             QRadioButton{
-                font-size: 12px;
+                font-size: 10pt;
             }
             QLineEdit, QTextEdit, QListWidget{
-                font-size: 14px;
+                font-size: 11pt;
                 border: 2px inset gray;
             }                          
             QListWidget:focus {
                 border: 2px solid #0078d4;
                 background-color: #e6f7ff;
             }
+            QListWidget::item:selected:active {
+                background-color: #a8d4f7;
+                color: black;
+            }
             QComboBox{
                 background-color: white; 
-                font-size: 14px;
+                font-size: 12pt;
             }
             QMenu {
                font-size: 10pt;
@@ -290,7 +300,7 @@ class MainWindow(QMainWindow):
         self.random_pf_button.setIcon(QIcon(resource_path("images/dice.png")))
         self.random_pf_button.setIconSize(QSize(28, 28))
         self.random_pf_button.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
-        self.random_pf_button.setFixedSize(125,45)
+        self.random_pf_button.setFixedSize(130,45)
         origin_label = QLabel("Origin of Power:")
         origin_label.setAlignment(Qt.AlignmentFlag.AlignBottom)
         self.origin_textbox = QLineEdit()
@@ -370,7 +380,8 @@ class MainWindow(QMainWindow):
         notes_label = QLabel("Notes:")
         self.notes_textbox = QTextEdit()
         notes_label.setAlignment(Qt.AlignmentFlag.AlignBottom)
-        self.setupTextBox(self.notes_textbox, 1055, 120, align=0)
+        #self.setupTextBox(self.notes_textbox, 1055, 120, align=0)
+        self.notes_textbox.setMinimumHeight(120)
         pf_notes_layout.addWidget(notes_label)
         pf_notes_layout.addWidget(self.notes_textbox)
 
@@ -438,7 +449,7 @@ class MainWindow(QMainWindow):
         self.abilities_button = QPushButton("  Roll Abilities\n         v")
         self.abilities_button.setIcon(QIcon(resource_path("images/dice.png")))
         self.abilities_button.setIconSize(QSize(42, 42))
-        self.abilities_button.setFixedSize(180,60)
+        self.abilities_button.setFixedSize(185,60)
         self.abilities_button.setEnabled(False)
 
         #configure click signal for the Roll Abilities button
@@ -673,7 +684,7 @@ class MainWindow(QMainWindow):
         self.roll_power_classes_button = QPushButton(" Roll Power Classes\n           v")
         self.roll_power_classes_button.setIcon(QIcon(resource_path("images/dice.png")))
         self.roll_power_classes_button.setIconSize(QSize(42, 42))
-        self.roll_power_classes_button.setFixedSize(220,60)
+        self.roll_power_classes_button.setFixedSize(225,60)
         self.roll_power_classes_button.setEnabled(False)
         #configure click signal for the Roll Power Classes button
         self.roll_power_classes_button.clicked.connect(self.roll_power_classes)
@@ -729,7 +740,7 @@ class MainWindow(QMainWindow):
         self.add_power_button = QPushButton(" Add Power(s)\n      v")
         self.add_power_button.setIcon(QIcon(resource_path("images/add.png")))
         self.add_power_button.setIconSize(QSize(32, 32))
-        self.add_power_button.setFixedSize(170,60)
+        self.add_power_button.setFixedSize(175,60)
         self.add_power_button.setEnabled(False)
         self.add_power_button.clicked.connect(self.add_power)
         powers_label = QLabel("Powers:")
@@ -745,7 +756,7 @@ class MainWindow(QMainWindow):
         self.generate_weakness_button = QPushButton("Generate Weakness")
         self.generate_weakness_button.setIcon(QIcon(resource_path("images/dice.png")))
         self.generate_weakness_button.setIconSize(QSize(26, 26))
-        self.generate_weakness_button.setFixedSize(170,40)
+        self.generate_weakness_button.setFixedSize(175,40)
         self.generate_weakness_button.setStyleSheet("font-size: 14px;")
         self.generate_weakness_button.setEnabled(False)
         self.generate_weakness_button.clicked.connect(self.generate_weakness)
@@ -790,10 +801,10 @@ class MainWindow(QMainWindow):
         buy_remove_talents_layout = QHBoxLayout()
 
         #left column
-        self.roll_talent_classes_button = QPushButton(" Roll Talent Classes\n        v")
+        self.roll_talent_classes_button = QPushButton(" Roll Talent Classes\n           v")
         self.roll_talent_classes_button.setIcon(QIcon(resource_path("images/dice.png")))
         self.roll_talent_classes_button.setIconSize(QSize(42, 42))
-        self.roll_talent_classes_button.setFixedSize(220,60)
+        self.roll_talent_classes_button.setFixedSize(225,60)
         self.roll_talent_classes_button.setEnabled(False)
         self.roll_talent_classes_button.clicked.connect(self.roll_talent_classes)
         talent_classes_label = QLabel("Talent Classes:")
