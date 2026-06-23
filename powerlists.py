@@ -168,9 +168,9 @@ matter_creation_powers_list = {"Artifact Creation*": [2, {"bonus": [], "option":
                                                                                "Matter Animation*"]}], 
                             "Spray": [1], "Webcasting": [1]}
 
-mental_enhancement_powers_list = {"Clairaudiance": [1, {"bonus": [], "option": ["Hyper-Hearing", "Clairvoyance", 
+mental_enhancement_powers_list = {"Clairaudience": [1, {"bonus": [], "option": ["Hyper-Hearing", "Clairvoyance", 
                                                                                "Remote Sensing"]}], 
-                            "Clairvoyance": [1, {"bonus": [], "option": ["Clairaudiance", "Remote Sensing"]}], 
+                            "Clairvoyance": [1, {"bonus": [], "option": ["Clairaudience", "Remote Sensing"]}], 
                             "Communicate with Animals": [1, {"bonus": [], "option": ["Linguistics", 
                                                                                      "Communicate with Cybernetics", 
                                                                                      "Communicate with Non-Living", 
@@ -197,7 +197,7 @@ mental_enhancement_powers_list = {"Clairaudiance": [1, {"bonus": [], "option": [
                             "Postcognition": [1, {"bonus": [], "option": ["Telepathy", "Time Travel*"]}],
                             "Precognition*": [2, {"bonus": [], "option": ["Telepathy", "Time Travel*"]}], 
                             "Psionic Vampirism*": [2], "Remote Sensing": [1, {"bonus": [], 
-                                                                              "option": ["Clairaudiance", "Clairvoyance", 
+                                                                              "option": ["Clairaudience", "Clairvoyance", 
                                                                                          "Remote Sensing"]}],
                             "Sensory Link": [1, {"bonus": [], "option": ["Telepathy"]}], 
                             "Serial Immortality*": [2], 

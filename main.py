@@ -235,6 +235,10 @@ class MainWindow(QMainWindow):
                 border: 2px solid #0078d4;
                 background-color: #e6f7ff;
             }
+            QPushButton:pressed {
+                border: 3px solid #f5f763;
+                background-color: #ffffff;
+            }
             QRadioButton{
                 font-size: 10pt;
             }
@@ -244,10 +248,19 @@ class MainWindow(QMainWindow):
             }                          
             QListWidget:focus {
                 border: 2px solid #0078d4;
-                background-color: #e6f7ff;
+                background-color: #ffffff;
+            }
+            QListWidget::item:selected {
+                background-color: #f5f763;
+                color: black;
+                border-radius: 6px;
             }
             QListWidget::item:selected:active {
-                background-color: #a8d4f7;
+                background-color: #f5f763;
+                color: black;
+            }
+            QListWidget::item:selected:!active {
+                background-color: #f5f763;
                 color: black;
             }
             QComboBox{
@@ -2153,7 +2166,9 @@ class MainWindow(QMainWindow):
             print("Adding Power!")
             power_class = self.roll_power_class()
             self.power_classes_listbox.setEnabled(True)
-            self.power_classes_listbox.addItem(power_class)
+            item = QListWidgetItem(power_class)
+            item.setSizeHint(QSize(0, 22))
+            self.power_classes_listbox.addItem(item)
             self.purchased_powers.append(power_class)
             self.resources_rank -= 2
             print(f"resources_rank={self.resources_rank}")
