@@ -1621,7 +1621,7 @@ class MainWindow(QMainWindow):
                 if compound_option_chance3 <= chance:
                     self.notes_textbox.insertPlainText("Harpies possess arms that "
                                                     "are modified to also serve "
-                                                    "as wings and feather-covered"
+                                                    "as wings and feather-covered "
                                                     "legs that end in bird Claws; ")
         elif effective_row == 24: #Cyborg-Mechanically Augmented
             if index == 0:
