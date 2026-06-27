@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
         #Setup parameters of the main window
         self.setWindowTitle("Marvel Super Heroes Character Generator")
         if platform.system() == "Darwin":
-            self.setFixedSize(1180, 860)
+            self.setFixedSize(1220, 870)
         else:
             self.setFixedSize(1100, 820)
         self.setWindowIcon(QIcon(resource_path('images/UPB_sm.jpg')))
