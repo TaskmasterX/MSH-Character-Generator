@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
         #Setup parameters of the main window
         self.setWindowTitle("Marvel Super Heroes Character Generator")
         if platform.system() == "Darwin":
-            self.setFixedSize(1200, 860)
+            self.setFixedSize(1200, 870)
         else:
             self.setFixedSize(1100, 820)
         self.setWindowIcon(QIcon(resource_path('images/UPB_sm.jpg')))
@@ -213,6 +213,7 @@ class MainWindow(QMainWindow):
 
 
         #apply a style sheet
+        label_size = "11pt" if sys.platform == "darwin" else "12pt"
         self.setStyleSheet("""
             QWidget{
                 background-color: #ffffff;
@@ -225,7 +226,10 @@ class MainWindow(QMainWindow):
                 margin-top: 10px;
                 padding: 5px;
             }
-            QLabel, QTabWidget{
+            QLabel{
+                font-size: """ + label_size + """;
+            }
+            QTabWidget{
                 font-size: 12pt;
             }
             QPushButton{
