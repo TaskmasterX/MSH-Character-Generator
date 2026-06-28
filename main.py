@@ -1899,6 +1899,7 @@ class MainWindow(QMainWindow):
             self.bubble_image.setPixmap(self.bubble_pixmap)
             self.blackpanther_pixmap = QPixmap("")
             self.blackpanther_image.setPixmap(self.blackpanther_pixmap)
+            self.tab_widget.setTabEnabled(2, False)
         
         self.watcher_pixmap = QPixmap("")
         self.watcher_image.setPixmap(self.watcher_pixmap)
@@ -2771,6 +2772,7 @@ class MainWindow(QMainWindow):
             self.contact_pixmap = QPixmap(resource_path('images/wolverine.jpg'))
             self.contact_image.setPixmap(self.contact_pixmap)
         else:
+            self.tab_widget.setTabEnabled(4, False)
             self.roll_contact_classes_button.setEnabled(False)
             self.talent2_pixmap = QPixmap(resource_path('images/spidey.jpg'))
             self.talent2_image.setPixmap(self.talent2_pixmap)
