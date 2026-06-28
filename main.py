@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
         #Setup parameters of the main window
         self.setWindowTitle("Marvel Super Heroes Character Generator")
         if platform.system() == "Darwin":
-            self.setFixedSize(1220, 870)
+            self.setFixedSize(1200, 860)
         else:
             self.setFixedSize(1100, 820)
         self.setWindowIcon(QIcon(resource_path('images/UPB_sm.jpg')))
@@ -476,7 +476,10 @@ class MainWindow(QMainWindow):
         abilities_rank_label = QLabel("Rank")
         abilities_rank_label.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         abilities_rank_number_label = QLabel("Rank\nNumber")
-        abilities_rank_number_label.setStyleSheet("font-size: 12px;")
+        if platform.system() == "Darwin":
+            abilities_rank_number_label.setStyleSheet("font-size: 11px;")
+        else:
+            abilities_rank_number_label.setStyleSheet("font-size: 12px;")
         abilities_rank_number_label.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         abilities_group_layout.addWidget(abilities_rank_label,0,1)
         abilities_group_layout.addWidget(abilities_rank_number_label,0,2)
